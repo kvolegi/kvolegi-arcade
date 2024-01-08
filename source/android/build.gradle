@@ -1,0 +1,39 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.kvolegi.arcade'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.kvolegi.arcade"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = ['src/main/java', '../core']
+            assets.srcDirs = ['../assets']
+        }
+    }
+}
+
+dependencies {
+    // Pure Java core has zero external dependencies
+}
