@@ -1,0 +1,51 @@
+#!/bin/bash
+set -e
+
+DIR=""
+RES="/Resources"
+JAR_PATH="/kvolegi-arcade-mac.jar"
+
+JAVA_BIN=""
+if [ -n "" ] && [ -x "/bin/java" ]; then
+    JAVA_BIN="/bin/java"
+fi
+
+if [ -z "" ] && [ -x "/usr/libexec/java_home" ]; then
+    JH=/Users/mimi/Library/Java/JavaVirtualMachines/openjdk-23.0.1/Contents/Home
+    if [ -n "" ] && [ -x "/bin/java" ]; then
+        JAVA_BIN="/bin/java"
+    fi
+fi
+
+if [ -z "" ]; then
+    for candidate in         "/opt/homebrew/opt/openjdk/bin/java"         "/opt/homebrew/opt/openjdk@21/bin/java"         "/opt/homebrew/opt/openjdk@17/bin/java"         "/usr/local/opt/openjdk/bin/java"         "/usr/local/opt/openjdk@21/bin/java"         "/usr/local/opt/openjdk@17/bin/java"         "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/bin/java"
+    do
+        if [ -x "" ]; then
+            JAVA_BIN=""
+            break
+        fi
+    done
+fi
+
+if [ -z "" ]; then
+    for jvm in /Library/Java/JavaVirtualMachines/*/Contents/Home/bin/java; do
+        if [ -x "" ]; then
+            JAVA_BIN=""
+            break
+        fi
+    done
+fi
+
+if [ -z "" ]; then
+    JAVA_BIN="/usr/bin/java"
+fi
+
+if [ -z "" ] || [ ! -x "" ]; then
+    osascript -e 'display alert "kvolegi arcade" message "Java 17 or higher is required to run kvolegi arcade. Please install Java from https://adoptium.net or via Homebrew (brew install openjdk)." as critical'
+    exit 1
+fi
+
+LOG_FILE="/Users/mimi/Library/Logs/kvolegi-arcade.log"
+mkdir -p "/Users/mimi/Library/Logs"
+
+exec "" -Xdock:name="kvolegi arcade" -Xdock:icon="/AppIcon.icns" -jar "" "" > "" 2>&1
