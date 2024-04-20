@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/JavaFX-21-FF6F00?style=for-the-badge&logo=java&logoColor=white" alt="JavaFX"/>
   <img src="https://img.shields.io/badge/Android-API%2024--35-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
   <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Android-4285F4?style=for-the-badge" alt="Platforms"/>
+  <img src="https://img.shields.io/badge/Tests-11%20Passed-brightgreen?style=for-the-badge" alt="Tests"/>
   <img src="https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=for-the-badge" alt="License"/>
 </p>
 
@@ -21,7 +22,7 @@
 
 ## 🌟 Executive Summary
 
-**kvolegi arcade** is an advanced, high-performance cross-platform gaming ecosystem developed from scratch between **November 2023 and February 2024**. The project showcases enterprise-grade software architecture, cross-platform code sharing, custom low-level 2D rendering, high-stakes game mathematics, and real-time heuristics.
+**kvolegi arcade** is an advanced, high-performance cross-platform gaming ecosystem developed from scratch between **November 2023 and April 2024**. The project showcases enterprise-grade software architecture, cross-platform code sharing, custom low-level 2D rendering, high-stakes game mathematics, and real-time heuristics.
 
 The suite bundles **four fully featured arcade games** wrapped in a unified Cyberpunk / Neon aesthetic with dynamic RGB rainbow bloom effects:
 1. **Tic Tac Toe (Neon Edition)** — Dynamic infinite memory-expanding grid (5x5 up to 25x25), 5-in-a-row victory criteria, Time-Attack Score Mode, and Nightmare-tier tactical AI.
@@ -149,6 +150,33 @@ Unlike conventional 3x3 Tic Tac Toe games, **kvolegi arcade** features an infini
 # Compile Desktop JARs, macOS .app bundle, and Windows .exe
 python3 build_all.py
 ```
+
+---
+
+## 🧪 Automated Testing & Mathematical Verification
+
+The repository includes a standalone automated test harness (`tests/ArcadeTestSuite.java`) verifying core game algorithms, matrix transformations, casino RTP mathematics, and UI bounds:
+
+```bash
+# Execute test suite via Python runner
+python3 tests/run_tests.py
+
+# Or directly via Java single-file source runner
+java tests/ArcadeTestSuite.java
+```
+
+### Verified Test Cases:
+* **TicTacToe In-RAM Dynamic Matrix Expansion:** Validates $5 \times 5 \to 10 \times 10$ expansion at $>50\%$ occupancy, centered coordinate remapping $(\Delta = 2)$, and state preservation.
+* **TicTacToe 5-in-a-Row Vector Detection:** Rigorous validation across horizontal, vertical, diagonal, and anti-diagonal lines.
+* **TicTacToe Heuristic AI:** Evaluates tactical score weights (win $50,000 >$ block $15,000 >$ fork $1,200$).
+* **Sigma Slots 20 Paylines:** Full matrix coordinate coverage across all 20 lines.
+* **Sigma Slots Wild & Scatter:** Validates WILD fruit substitutions and SCATTER multiplier triggers.
+* **Sigma Slots Wager Boundaries:** Validates bet clamping against minimum 10 and current user balance.
+* **Beer Snake Physics:** Toroidal coordinate wrap-around formula and solid wall collision boundaries.
+* **Beer Snake Speed Curve:** 25-stage speed interpolation down to 60ms minimum tick.
+* **Bobr Minesweeper Safe Start:** Guaranteed 0-mine first click with $3 \times 3$ safe zone and recursive cascade.
+* **Bobr Minesweeper Sonar Sweep:** Non-destructive $3 \times 3$ radius radar detection.
+* **UI Hit-Testing Isolation:** Verifies `setPickOnBounds(false)` ensures 50px Gaussian glow shaders do not capture adjacent button clicks.
 
 ---
 

@@ -2,7 +2,7 @@
 KVOLEGI ARCADE - COMPREHENSIVE TECHNICAL DOCUMENTATION & ARCHITECTURE SPECIFICATION
 ================================================================================
 Author:      kvolegi (@kvolegi)
-Timeline:    November 2023 - February 2024
+Timeline:    November 2023 - April 2024
 Language:    Java 17 / 21, JavaFX 21, Android SDK (API 24 - 35)
 Platforms:   Microsoft Windows, macOS, Android
 License:     Proprietary - Copyright (c) 2023-2024 kvolegi. All Rights Reserved.
@@ -163,7 +163,33 @@ D. Bobr Minesweeper: Tactical Sonar & Guaranteed Safety
      macOS .app application bundle, and Android signed release APK.
 
 
-5. COPYRIGHT & INTELLECTUAL PROPERTY NOTICE
+5. AUTOMATED TESTING, QUALITY ASSURANCE & MATHEMATICAL VERIFICATION
+--------------------------------------------------------------------------------
+The suite includes an automated regression and mathematical verification test harness
+(tests/ArcadeTestSuite.java, executable via 'python3 tests/run_tests.py' or 'java tests/ArcadeTestSuite.java').
+
+1. Tic Tac Toe Dynamic Expansion & State Preservation:
+   - Validates that when cell occupancy crosses 50%, the board dynamically expands from
+     5x5 to 10x10 and preserves all cell values at (r + offset, c + offset).
+   - Validates multi-directional 5-in-a-row victory detection across all 4 vector axes.
+   - Evaluates AI heuristic scores (immediate win 50k > block opponent 4-in-a-row 15k).
+
+2. Sigma Slots Mathematics & Paylines:
+   - Validates 20 authentic Las Vegas paylines across the 4x5 reel matrix.
+   - Confirms Wild substitution logic and Scatter jackpot multiplier triggers.
+   - Confirms wager boundary clamping (minimum 10 credits, maximum available balance).
+
+3. Physics & Gameplay Safety:
+   - Validates Beer Snake toroidal coordinate wrap-around formula and solid wall collisions.
+   - Verifies 25-stage speed interpolation down to 60ms minimum frame delay.
+   - Verifies Bobr Minesweeper guaranteed 0-mine first click and 3x3 Sonar radar sweep.
+
+4. UI Hit-Testing & Precision Boundaries:
+   - Verifies setPickOnBounds(false) ensures 50px Gaussian glow filters do not
+     intercept mouse clicks on adjacent buttons.
+
+
+6. COPYRIGHT & INTELLECTUAL PROPERTY NOTICE
 --------------------------------------------------------------------------------
 Project Name: kvolegi arcade
 Author:       kvolegi (@kvolegi)
