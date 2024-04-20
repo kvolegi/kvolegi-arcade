@@ -29,3 +29,7 @@ local.properties
 captures/
 .externalNativeBuild/
 .cxx/
+
+# Office documents (local notes/resumes)
+*.docx
+*.doc
