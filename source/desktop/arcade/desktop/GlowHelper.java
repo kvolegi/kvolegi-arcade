@@ -25,7 +25,7 @@ import java.io.InputStream;
 public class GlowHelper {
     public static DropShadow sharedGlowEffect;
     public static Timeline globalGlowAnimation;
-    private static Font comicFont;
+    private static Font appFont;
 
     static {
         initGlow();
@@ -34,18 +34,18 @@ public class GlowHelper {
 
     private static void initFont() {
         try {
-            InputStream is = GlowHelper.class.getResourceAsStream("/fonts/ComicSansMS.ttf");
+            InputStream is = GlowHelper.class.getResourceAsStream("/fonts/Nunito-Bold.ttf");
             if (is != null) {
-                comicFont = Font.loadFont(is, 18);
+                appFont = Font.loadFont(is, 18);
             }
         } catch (Exception ignored) { }
-        if (comicFont == null) {
-            comicFont = Font.font("Comic Sans MS", FontWeight.BOLD, 18);
+        if (appFont == null) {
+            appFont = Font.font("System", FontWeight.BOLD, 18);
         }
     }
 
     public static Font getFont(double size, boolean bold) {
-        String family = comicFont != null ? comicFont.getFamily() : "Comic Sans MS";
+        String family = appFont != null ? appFont.getFamily() : "System";
         return Font.font(family, bold ? FontWeight.BOLD : FontWeight.NORMAL, size);
     }
 

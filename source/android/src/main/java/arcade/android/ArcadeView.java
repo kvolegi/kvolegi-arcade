@@ -26,7 +26,7 @@ public class ArcadeView extends SurfaceView implements SurfaceHolder.Callback, R
         try {
             Typeface bold = null;
             try {
-                bold = Typeface.createFromAsset(context.getAssets(), "fonts/ComicSansMS.ttf");
+                bold = Typeface.createFromAsset(context.getAssets(), "fonts/Nunito-Bold.ttf");
             } catch (Throwable ignored) {}
             if (bold == null) {
                 try {
