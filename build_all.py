@@ -136,10 +136,17 @@ def build_desktop():
     subprocess.run(["jar", "cfm", jar_mac, manifest_mac, "-C", classes_mac, "."], check=True)
     print(f"Created macOS JAR: {jar_mac} ({os.path.getsize(jar_mac):,} bytes)")
 
-    # Rebuild .app bundle
-    app_res = os.path.join(MAC_BUILD, "kvolegi arcade.app/Contents/Resources")
+    # Rebuild .app bundle & auto-sign if on macOS
+    app_bundle = os.path.join(MAC_BUILD, "kvolegi arcade.app")
+    app_res = os.path.join(app_bundle, "Contents/Resources")
     os.makedirs(app_res, exist_ok=True)
     shutil.copy2(jar_mac, os.path.join(app_res, "kvolegi-arcade-mac.jar"))
+    if sys.platform == "darwin" and shutil.which("codesign"):
+        try:
+            subprocess.run(["codesign", "--force", "--deep", "--sign", "-", app_bundle], check=True, capture_output=True)
+            print(f"Signed {app_bundle} with ad-hoc codesign signature.")
+        except Exception as e:
+            print(f"Warning: codesign failed: {e}")
     print("Updated kvolegi arcade.app bundle.")
 
     # 2. Windows Build

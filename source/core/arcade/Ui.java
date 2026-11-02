@@ -79,8 +79,24 @@ public class Ui {
         }
     }
 
-    public void key(String k) { keys.add(k); if (keys.size() > 16) keys.poll(); }
-    public String pollKey() { return keys.poll(); }
+    public void key(String k) {
+        inputLock.lock();
+        try {
+            keys.add(k);
+            if (keys.size() > 16) keys.poll();
+        } finally {
+            inputLock.unlock();
+        }
+    }
+
+    public String pollKey() {
+        inputLock.lock();
+        try {
+            return keys.poll();
+        } finally {
+            inputLock.unlock();
+        }
+    }
 
     /** Returns 'U','D','L','R' once a drag exceeds the threshold, else 0. */
     public char swipe(float threshold) {
