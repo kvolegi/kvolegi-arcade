@@ -1,0 +1,52 @@
+name: Release / Publish Arcade Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    name: Build & Publish Arcade Release Assets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up OpenJDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Build Arcade Maven Package
+        run: mvn package -DskipTests --batch-mode
+
+      - name: Build Multiplatform Artifacts
+        run: python3 build_all.py
+
+      - name: Upload Release Binaries to GitHub Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: kvolegi-arcade-release-assets
+          path: builds/
+          if-no-files-found: warn
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            builds/mac/kvolegi-arcade-mac.jar
+            builds/kvolegi-arcade-universal.jar
+            builds/android/kvolegi-arcade.apk
+          generate_release_notes: true
