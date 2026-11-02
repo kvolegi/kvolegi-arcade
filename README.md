@@ -68,10 +68,10 @@ kvolegi-arcade/
 │   └── android/               # Mobile Frontend (Android Native SDK)
 │       └── src/main/java/     # SurfaceView, dedicated 60 FPS RenderThread, Touch dispatch
 ├── assets/                    # High-res PNG sprites, TTF fonts, audio FX
-├── builds/                    # Distribution binaries
-│   ├── kvolegi-arcade-universal.jar  # Universal cross-platform JAR (Windows / Linux / macOS)
-│   ├── mac/                   # kvolegi arcade.app & macOS runner
-│   └── android/               # kvolegi-arcade.apk (Signed Release APK)
+├── dist/                      # Local distribution binaries (Git-ignored)
+│   ├── kvolegi-arcade-mac.jar # Universal cross-platform JAR (Windows / Linux / macOS)
+│   ├── kvolegi arcade.app     # Standalone macOS Application Bundle
+│   └── kvolegi-arcade.apk     # Signed Release Android APK
 └── docs/                      # Screenshots, technical documentation & specifications
 ```
 
@@ -121,9 +121,9 @@ Rather than a fixed 3x3 grid, the board grows dynamically:
 
 ## 🚀 How to Run
 
-### Option 1: Universal JAR (Windows & Linux)
+### Option 1: Universal Executable JAR (Windows, Linux, macOS)
 
-The standalone executable JAR `builds/kvolegi-arcade-universal.jar` bundles all necessary multiplatform desktop runtime components and works on Windows, Linux, and macOS.
+The standalone executable JAR `dist/kvolegi-arcade-mac.jar` bundles all multiplatform desktop components and runs seamlessly across Windows, Linux, and macOS:
 
 #### Prerequisites
 Java 17 or Java 21+ is required.
@@ -147,37 +147,40 @@ Java 17 or Java 21+ is required.
   ```
 
 #### Launch Command
-Open your terminal (PowerShell or Bash) in the project directory:
 ```bash
-java -jar builds/kvolegi-arcade-universal.jar
+java -jar dist/kvolegi-arcade-mac.jar
 ```
 
 ---
 
-### Option 2: macOS Application (`kvolegi arcade.app`)
+### Option 2: Standalone macOS Application (`kvolegi arcade.app`)
 
-For macOS users, a pre-packaged `.app` bundle is available under `builds/mac/`:
+For macOS users, a pre-packaged universal application bundle (`.app`) is provided under `dist/`:
 
-1. Open `builds/mac/` in Finder.
+1. Open `dist/` in Finder.
 2. Double-click **`kvolegi arcade.app`**.
-3. **If macOS Gatekeeper blocks the app** with a warning stating the developer cannot be verified:
-   * **Terminal fix:** Open Terminal and remove the quarantine attribute:
+3. **If macOS Gatekeeper flags the app** (unverified developer):
+   * **Terminal command:**
      ```bash
-     xattr -cr "builds/mac/kvolegi arcade.app"
+     xattr -cr "dist/kvolegi arcade.app"
      ```
-   * **GUI fix:** Right-click (or Control-click) `kvolegi arcade.app` in Finder, select **Open**, and confirm **Open** in the dialog.
-4. Alternatively, launch directly via terminal script:
-   ```bash
-   ./builds/mac/run_mac.sh
-   ```
+   * **Or via Finder:** Right-click `kvolegi arcade.app` $\to$ click **Open** $\to$ confirm **Open** in the security prompt.
 
 ---
 
 ### Option 3: Android Device (`.apk`)
 
-1. Copy `builds/android/kvolegi-arcade.apk` to your phone or tablet (Android 7.0 / API 24 or newer).
-2. Open your device's file manager, tap the APK file, and allow installation from this source.
-3. Launch **kvolegi arcade** from your app drawer.
+1. Transfer `dist/kvolegi-arcade.apk` to your phone or tablet (Android 7.0 / API 24 or newer).
+2. Open your device's file manager, tap the APK, and confirm installation.
+3. Launch **kvolegi arcade** directly from your app drawer.
+
+---
+
+## 📦 Distribution Standards: `dist/` vs `target/`
+
+* **`target/` (Temporary Build Artifacts)**: Contains bytecode (`.class` files), Maven Surefire XML test logs, and intermediate packaging layers. Completely cleared on `mvn clean`.
+* **`dist/` (Release Packages)**: Contains ready-to-run deliverables (`.jar`, `.app`, `.apk`).
+* **Why Binaries are Not Committed to Git**: In modern software engineering, compiled binaries are excluded from Git repositories to prevent repository bloat and binary merge conflicts. Releases are automatically built and published via **GitHub Releases** using GitHub Actions CI/CD (`.github/workflows/release.yml`).
 
 ---
 
@@ -185,29 +188,31 @@ For macOS users, a pre-packaged `.app` bundle is available under `builds/mac/`:
 
 ### Prerequisites
 * JDK 17 or JDK 21+
+* Maven 3.8+
 * Python 3.10+ (for automation scripts)
 * Android SDK Platform 35 & Build-Tools 35.0.0 (only if rebuilding the Android APK)
 
-### Run Build
+### Run Maven Build
 ```bash
-python3 build_all.py
+# Compile and package the desktop JAR
+mvn clean package -DskipTests
 ```
 
 ---
 
 ## 🧪 Automated Testing
 
-The repository contains a standalone verification suite (`tests/ArcadeTestSuite.java`) covering core algorithms, matrix transformations, and payout rules:
+The suite includes an idiomatic **JUnit 5** test suite (`tests/ArcadeDomainTest.java`) integrated directly into Maven Surefire:
 
 ```bash
-# Run test suite via Python helper
-python3 tests/run_tests.py
+# Run canonical JUnit 5 test suite via Maven
+mvn test
 
-# Or directly through Java source runner
+# Or run headless simulation runner
 java tests/ArcadeTestSuite.java
 ```
 
-### Test Coverage:
+### Test Coverage (11 Distinct Domain Tests):
 * **Matrix Expansion:** $5 \times 5 \to 10 \times 10$ growth at $>50\%$ occupancy, centered coordinate remapping $(\Delta = 2)$.
 * **5-in-a-Row Detection:** Validates victory vectors across horizontal, vertical, and both diagonal directions.
 * **Heuristic AI Evaluation:** Confirms threat weight hierarchy (win $50,000 >$ block $15,000 >$ fork $1,200$).
