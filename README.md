@@ -85,6 +85,14 @@ kvolegi-arcade/
 * **Isolated 60 FPS Loop:** Rendering runs on a dedicated background thread (`ArcadeView.java`) that locks the canvas via double-buffering (`surfaceHolder.lockCanvas()`), keeping heavy drawing separate from the main OS UI thread.
 * **Low Memory Churn:** Object reuse and minimal allocations inside the draw loop prevent frequent garbage collection pauses.
 
+### 3. Concurrency & Loom Thread-Safety Model
+* **Loom-Safe Synchronization:** Traditional Java `synchronized` blocks pin OS carrier threads when running under Java 21 Project Loom virtual executors. The input state pipeline (`Ui.java`) replaces monitor locks with `java.util.concurrent.locks.ReentrantLock`, ensuring virtual threads can unmount freely without thread pinning.
+* **Race-Condition-Free Event Queue:** Mouse pointer coordinates and keyboard events (`ArrayDeque<String>`) are strictly guarded with mutual exclusion locks, preventing concurrent modification exceptions between OS event dispatch threads (AWT/Swing) and the game rendering loop.
+
+### 4. Cross-Platform Build & Code Signing Automation
+* **Standalone Python Toolchain (`build_all.py`):** Automatically compiles desktop Java sources, merges multi-platform OpenJFX bindings, constructs Universal Fat JARs, and drives Android DEX compilation (`d8`), resource alignment (`zipalign`), and APK packaging.
+* **Automated Code Signing:** Integrates native macOS `codesign` ad-hoc signing (`codesign --force --deep --sign -`) directly into the automated build step, generating launchable `.app` bundles with valid Gatekeeper signatures.
+
 ---
 
 ## 🧠 Game Logic & Mechanics
