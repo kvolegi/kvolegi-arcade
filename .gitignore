@@ -40,7 +40,9 @@ captures/
 
 # Release artifacts (distributed via GitHub Releases, not git tree)
 builds/
+dist/
 *.jar
 *.apk
+*.zip
 *.idsig
 *.app/

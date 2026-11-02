@@ -125,19 +125,51 @@ public class App {
         while (ui.keys.remove("ESC")) { if (!block) back(); }
         if (screen != Screen.PLAY) ui.keys.clear();
 
-        switch (screen) {
-            case MAIN: Menus.main(this, g, w, h); break;
-            case TTT_MENU: Menus.tttMenu(this, g, w, h); break;
-            case TTT_SETTINGS: Menus.tttSettings(this, g, w, h); break;
-            case SETTINGS: Menus.settings(this, g, w, h); break;
-            case PLAY:
-                current.frame(g, dt, w, h);
-                ui.authorTag(g, 16, h - 14, Gfx.LEFT);
-                break;
-        }
-
         if (showMoneyModal) {
+            boolean savedDown = ui.down;
+            boolean savedPressed = ui.pressed;
+            boolean savedReleased = ui.released;
+            boolean savedConsumed = ui.consumed;
+            float savedPx = ui.px;
+            float savedPy = ui.py;
+
+            ui.down = false;
+            ui.pressed = false;
+            ui.released = false;
+            ui.consumed = true;
+            ui.px = -9999;
+            ui.py = -9999;
+
+            switch (screen) {
+                case MAIN: Menus.main(this, g, w, h); break;
+                case TTT_MENU: Menus.tttMenu(this, g, w, h); break;
+                case TTT_SETTINGS: Menus.tttSettings(this, g, w, h); break;
+                case SETTINGS: Menus.settings(this, g, w, h); break;
+                case PLAY:
+                    current.frame(g, 0, w, h);
+                    ui.authorTag(g, 16, h - 14, Gfx.LEFT);
+                    break;
+            }
+
+            ui.down = savedDown;
+            ui.pressed = savedPressed;
+            ui.released = savedReleased;
+            ui.consumed = savedConsumed;
+            ui.px = savedPx;
+            ui.py = savedPy;
+
             Menus.moneyModal(this, g, w, h);
+        } else {
+            switch (screen) {
+                case MAIN: Menus.main(this, g, w, h); break;
+                case TTT_MENU: Menus.tttMenu(this, g, w, h); break;
+                case TTT_SETTINGS: Menus.tttSettings(this, g, w, h); break;
+                case SETTINGS: Menus.settings(this, g, w, h); break;
+                case PLAY:
+                    current.frame(g, dt, w, h);
+                    ui.authorTag(g, 16, h - 14, Gfx.LEFT);
+                    break;
+            }
         }
 
         if (fade > 0) {

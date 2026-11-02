@@ -113,21 +113,21 @@ final class Menus {
         Theme th = ui.th;
 
         TicTacToe ttt = (TicTacToe) app.games.get(0);
-        float scale = h / 750f;
+        float scale = Math.max(0.95f, Math.min(1.35f, h / 650f));
         int glowCol = Art.cyclingRainbow(ui.time);
 
         float titleY = Math.round(52 * scale);
         ui.title(g, "Settings", w / 2, titleY, Math.round(44 * scale), glowCol);
 
-        float cw = Math.round(Math.min(w - 60, Math.max(w * 0.52f, 600 * scale)));
+        float cw = Math.round(Math.min(w - 36, Math.max(w * 0.82f, 580 * scale)));
         float x0 = (w - cw) / 2;
         float y = titleY + Math.round(48 * scale);
 
         // Opponent: Human vs Computer
-        ui.label(g, "Choose Opponent:", x0 + 4, y, Math.round(17 * scale), false, Gfx.LEFT, th.fg, cw);
-        y += Math.round(24 * scale);
+        ui.label(g, "Choose Opponent:", x0 + 4, y, Math.max(18, Math.round(19 * scale)), false, Gfx.LEFT, th.fg, cw);
+        y += Math.round(26 * scale);
         float halfW = (cw - 12) / 2;
-        float chipH = Math.round(48 * scale);
+        float chipH = Math.max(50f, Math.round(54 * scale));
         boolean isComp = ttt.oPlayers.sel == 0;
         if (ui.chip(g, "Human", x0, y, halfW, chipH, !isComp, glowCol)) {
             ttt.oPlayers.sel = 1; ttt.saveOpts();
@@ -135,12 +135,12 @@ final class Menus {
         if (ui.chip(g, "Computer", x0 + halfW + 12, y, halfW, chipH, isComp, glowCol)) {
             ttt.oPlayers.sel = 0; ttt.saveOpts();
         }
-        y += Math.round(64 * scale);
+        y += Math.round(70 * scale);
 
         // Play as (X vs O) - if Computer
         if (isComp) {
-            ui.label(g, "Play as:", x0 + 4, y, Math.round(17 * scale), false, Gfx.LEFT, th.fg, cw);
-            y += Math.round(24 * scale);
+            ui.label(g, "Play as:", x0 + 4, y, Math.max(18, Math.round(19 * scale)), false, Gfx.LEFT, th.fg, cw);
+            y += Math.round(26 * scale);
             boolean isX = ttt.oSide.sel == 0;
             if (ui.chip(g, "X", x0, y, halfW, chipH, isX, glowCol)) {
                 ttt.oSide.sel = 0; ttt.saveOpts();
@@ -148,24 +148,24 @@ final class Menus {
             if (ui.chip(g, "O", x0 + halfW + 12, y, halfW, chipH, !isX, glowCol)) {
                 ttt.oSide.sel = 1; ttt.saveOpts();
             }
-            y += Math.round(64 * scale);
+            y += Math.round(70 * scale);
 
             // AI Difficulty
-            ui.label(g, "AI Difficulty:", x0 + 4, y, Math.round(17 * scale), false, Gfx.LEFT, th.fg, cw);
-            y += Math.round(24 * scale);
+            ui.label(g, "AI Difficulty:", x0 + 4, y, Math.max(18, Math.round(19 * scale)), false, Gfx.LEFT, th.fg, cw);
+            y += Math.round(26 * scale);
             float quartW = (cw - 3 * 8) / 4;
             String[] diffs = {"Easy", "Normal", "Hard", "Nightmare"};
             for (int k = 0; k < 4; k++) {
-                if (ui.chip(g, diffs[k], x0 + k * (quartW + 8), y, quartW, Math.round(46 * scale), ttt.oLevel.sel == k, glowCol)) {
+                if (ui.chip(g, diffs[k], x0 + k * (quartW + 8), y, quartW, Math.max(48f, Math.round(50 * scale)), ttt.oLevel.sel == k, glowCol)) {
                     ttt.oLevel.sel = k; ttt.saveOpts();
                 }
             }
-            y += Math.round(64 * scale);
+            y += Math.round(70 * scale);
         }
 
         // Game Mode: Line Mode vs Score Mode (Endless board is standard)
-        ui.label(g, "Choose Game Mode:", x0 + 4, y, Math.round(17 * scale), false, Gfx.LEFT, th.fg, cw);
-        y += Math.round(24 * scale);
+        ui.label(g, "Choose Game Mode:", x0 + 4, y, Math.max(18, Math.round(19 * scale)), false, Gfx.LEFT, th.fg, cw);
+        y += Math.round(26 * scale);
         boolean isLine = ttt.oMode.sel == 0;
         if (ui.chip(g, "Line Mode (Endless)", x0, y, halfW, chipH, isLine, glowCol)) {
             ttt.oMode.sel = 0; ttt.saveOpts();
@@ -173,14 +173,14 @@ final class Menus {
         if (ui.chip(g, "Score Mode (60s)", x0 + halfW + 12, y, halfW, chipH, !isLine, glowCol)) {
             ttt.oMode.sel = 1; ttt.saveOpts();
         }
-        y += Math.round(72 * scale);
+        y += Math.round(76 * scale);
 
         // Winning line length: strictly locked to 5 in a row per user request
         ttt.oWin.sel = 1; ttt.saveOpts();
 
         // Save Settings (matches photo with synchronized neon glow)
-        float saveW = Math.round(360 * scale);
-        if (drawNeonRectButton(g, ui, "Save Settings", (w - saveW) / 2, y, saveW, Math.round(62 * scale), glowCol)) {
+        float saveW = Math.round(Math.min(cw, 380 * scale));
+        if (drawNeonRectButton(g, ui, "Save Settings", (w - saveW) / 2, y, saveW, Math.max(56f, Math.round(62 * scale)), glowCol)) {
             app.go(App.Screen.TTT_MENU, ttt);
         }
 
@@ -191,46 +191,46 @@ final class Menus {
     static void settings(App app, Gfx g, float w, float h) {
         Ui ui = app.ui;
         Theme th = ui.th;
-        float scale = h / 750f;
+        float scale = Math.max(0.95f, Math.min(1.35f, h / 650f));
         int glowCol = Art.cyclingRainbow(ui.time);
 
-        float titleY = Math.round(48 * scale);
-        ui.title(g, "Settings", w / 2, titleY, Math.round(44 * scale), glowCol);
+        float titleY = Math.round(52 * scale);
+        ui.title(g, "Settings", w / 2, titleY, Math.round(46 * scale), glowCol);
 
-        float cw = Math.round(Math.min(w - 60, Math.max(w * 0.48f, 540 * scale)));
+        float cw = Math.round(Math.min(w - 36, Math.max(w * 0.82f, 580 * scale)));
         float x0 = (w - cw) / 2;
-        float y = titleY + Math.round(48 * scale);
+        float y = titleY + Math.round(52 * scale);
         float halfW = (cw - 12) / 2;
-        float chipH = Math.round(44 * scale);
+        float chipH = Math.max(52f, Math.round(56 * scale));
 
         // 1. Sound Effects
-        ui.label(g, "Sound Effects:", x0 + 4, y, Math.round(18 * scale), false, Gfx.LEFT, th.fg, cw);
-        y += Math.round(26 * scale);
+        ui.label(g, "Sound Effects:", x0 + 4, y, Math.max(19, Math.round(21 * scale)), false, Gfx.LEFT, th.fg, cw);
+        y += Math.round(30 * scale);
         if (ui.chip(g, "Sound ON", x0, y, halfW, chipH, app.soundEnabled, glowCol)) {
             app.setSound(true);
         }
         if (ui.chip(g, "Sound OFF", x0 + halfW + 12, y, halfW, chipH, !app.soundEnabled, C.RED)) {
             app.setSound(false);
         }
-        y += Math.round(72 * scale);
+        y += Math.round(80 * scale);
 
         // 2. Music Volume
-        ui.label(g, "Music Volume: " + (app.musicVolume == 0 ? "Mute" : app.musicVolume + "%"), x0 + 4, y, Math.round(18 * scale), false, Gfx.LEFT, th.fg, cw);
-        y += Math.round(26 * scale);
-        float volChipW = (cw - 3 * 8) / 4;
+        ui.label(g, "Music Volume: " + (app.musicVolume == 0 ? "Mute" : app.musicVolume + "%"), x0 + 4, y, Math.max(19, Math.round(21 * scale)), false, Gfx.LEFT, th.fg, cw);
+        y += Math.round(30 * scale);
+        float volChipW = (cw - 3 * 10) / 4;
         int[] vols = {0, 30, 70, 100};
         String[] volLabels = {"Mute", "30%", "70%", "100%"};
         for (int k = 0; k < 4; k++) {
             boolean sel = app.musicVolume == vols[k];
-            if (ui.chip(g, volLabels[k], x0 + k * (volChipW + 8), y, volChipW, Math.round(44 * scale), sel, glowCol)) {
+            if (ui.chip(g, volLabels[k], x0 + k * (volChipW + 10), y, volChipW, chipH, sel, glowCol)) {
                 app.setVolume(vols[k]);
             }
         }
-        y += Math.round(80 * scale);
+        y += Math.round(90 * scale);
 
         // Back to Arcade button
-        float btnW = Math.round(Math.min(360 * scale, cw));
-        if (drawNeonRectButton(g, ui, "Back to Arcade", (w - btnW) / 2, y, btnW, Math.round(58 * scale), glowCol)) {
+        float btnW = Math.round(Math.min(cw, 380 * scale));
+        if (drawNeonRectButton(g, ui, "Back to Arcade", (w - btnW) / 2, y, btnW, Math.max(56f, Math.round(62 * scale)), glowCol)) {
             app.go(App.Screen.MAIN, null);
         }
 
@@ -242,14 +242,14 @@ final class Menus {
     static void moneyModal(App app, Gfx g, float w, float h) {
         Ui ui = app.ui;
         Theme th = ui.th;
-        float scale = h / 750f;
+        float scale = Math.max(0.95f, Math.min(1.35f, h / 650f));
 
         // Dark dim backdrop
         g.color(0xDC000000);
         g.rect(0, 0, w, h);
 
-        float mw = Math.round(Math.min(w - 30, Math.max(w * 0.52f, 560 * scale)));
-        float mh = Math.round(Math.min(h - 30, 490 * scale));
+        float mw = Math.round(Math.min(w - 20, Math.max(w * 0.90f, 560 * scale)));
+        float mh = Math.round(Math.min(h - 20, Math.max(490f, 530 * scale)));
         float mx = (w - mw) / 2;
         float my = (h - mh) / 2;
         float r = 4.0f;
@@ -266,20 +266,23 @@ final class Menus {
 
         // Subtitle / current balance
         int curBal = app.store.getInt("slots.bal", 1000);
+        if (app.current instanceof Slots) {
+            curBal = (int) ((Slots) app.current).getBalance();
+        }
         ui.label(g, "Баланс: " + String.format("%,d", curBal) + "  \u2022  Лимит: от 0 до 1 000 000",
-                mx + mw / 2, my + 68 * scale, Math.round(15 * scale), false, Gfx.CENTER, th.dim, mw - 24);
+                mx + mw / 2, my + 68 * scale, Math.max(15, Math.round(16 * scale)), false, Gfx.CENTER, th.dim, mw - 24);
 
         // Amount Box
-        float abH = Math.round(48 * scale);
+        float abH = Math.max(48f, Math.round(52 * scale));
         g.color(0xFF0D0D12);
         g.rrect(mx + 20, my + 88 * scale, mw - 40, abH, 2.0f);
         g.color(ui.neon(0.1f));
         g.rrectStroke(mx + 20, my + 88 * scale, mw - 40, abH, 2.0f, 2.0f);
         String addStr = "+ " + String.format("%,d", app.addMoneyAmount) + " монет";
-        ui.label(g, addStr, mx + mw / 2, my + 112 * scale, Math.round(24 * scale), true, Gfx.CENTER, 0xFFFFFFFF, mw - 60);
+        ui.label(g, addStr, mx + mw / 2, my + 112 * scale, Math.max(22, Math.round(26 * scale)), true, Gfx.CENTER, 0xFFFFFFFF, mw - 60);
 
         // Slider track
-        float slX = mx + 24, slY = my + 154 * scale, slW = mw - 48, slH = Math.round(16 * scale);
+        float slX = mx + 24, slY = my + 154 * scale, slW = mw - 48, slH = Math.max(16f, Math.round(18 * scale));
         g.color(0xFF1E293B);
         g.rrect(slX, slY, slW, slH, 2.0f);
 
@@ -289,23 +292,23 @@ final class Menus {
 
         float thumbX = slX + slW * pct;
         g.color(0xFFFFFFFF);
-        g.rrect(thumbX - 8, slY - 6, 16, slH + 12, 3.0f);
+        g.rrect(thumbX - 10, slY - 8, 20, slH + 16, 3.0f);
         g.color(0xFF000000);
-        g.rrectStroke(thumbX - 8, slY - 6, 16, slH + 12, 3.0f, 1.5f);
+        g.rrectStroke(thumbX - 10, slY - 8, 20, slH + 16, 3.0f, 1.5f);
 
-        if (ui.down && Ui.in(ui.px, ui.py, slX - 20, slY - 20, slW + 40, slH + 40)) {
+        if (ui.down && Ui.in(ui.px, ui.py, slX - 25, slY - 25, slW + 50, slH + 50)) {
             float newPct = C.clamp((ui.px - slX) / slW, 0f, 1f);
             app.addMoneyAmount = Math.round(newPct * 1000f) * 1000;
         }
 
-        ui.label(g, "0", slX, slY + 24 * scale, Math.round(12 * scale), false, Gfx.LEFT, th.dim, 50);
-        ui.label(g, "500 000", slX + slW / 2, slY + 24 * scale, Math.round(12 * scale), false, Gfx.CENTER, th.dim, 80);
-        ui.label(g, "1 000 000", slX + slW, slY + 24 * scale, Math.round(12 * scale), false, Gfx.RIGHT, th.dim, 80);
+        ui.label(g, "0", slX, slY + 26 * scale, Math.round(13 * scale), false, Gfx.LEFT, th.dim, 50);
+        ui.label(g, "500 000", slX + slW / 2, slY + 26 * scale, Math.round(13 * scale), false, Gfx.CENTER, th.dim, 80);
+        ui.label(g, "1 000 000", slX + slW, slY + 26 * scale, Math.round(13 * scale), false, Gfx.RIGHT, th.dim, 80);
 
         // Large touch-friendly Preset Buttons - Row 1 (4 buttons)
         float yChips1 = my + 196 * scale;
         float cw1 = (mw - 48 - 3 * 10) / 4f;
-        float chipH = Math.round(48 * scale);
+        float chipH = Math.max(48f, Math.round(52 * scale));
         int[] row1Vals = {1000, 10000, 50000, 100000};
         String[] row1Labels = {"+1,000", "+10,000", "+50,000", "+100,000"};
         for (int i = 0; i < 4; i++) {
@@ -330,20 +333,26 @@ final class Menus {
         // Action Buttons: Add & Set
         float btnY = yChips2 + chipH + Math.round(14 * scale);
         float btnW = (mw - 48 - 12) / 2;
-        float btnH = Math.round(52 * scale);
+        float btnH = Math.max(54f, Math.round(58 * scale));
         if (drawGreenNeonRectButton(g, ui, "Добавить", slX, btnY, btnW, btnH)) {
             int newB = Math.min(1000000, curBal + app.addMoneyAmount);
             app.store.putInt("slots.bal", newB);
+            if (app.current instanceof Slots) {
+                ((Slots) app.current).setBalance(newB);
+            }
             app.showMoneyModal = false;
         }
         if (drawNeonRectButton(g, ui, "Установить", slX + btnW + 12, btnY, btnW, btnH, C.CYAN)) {
             app.store.putInt("slots.bal", app.addMoneyAmount);
+            if (app.current instanceof Slots) {
+                ((Slots) app.current).setBalance(app.addMoneyAmount);
+            }
             app.showMoneyModal = false;
         }
 
         // Close Button
         float closeY = btnY + btnH + Math.round(10 * scale);
-        if (drawNeonRectButton(g, ui, "Закрыть", slX, closeY, mw - 48, Math.round(44 * scale), C.PURPLE)) {
+        if (drawNeonRectButton(g, ui, "Закрыть", slX, closeY, mw - 48, Math.max(48f, Math.round(50 * scale)), C.PURPLE)) {
             app.showMoneyModal = false;
         }
     }

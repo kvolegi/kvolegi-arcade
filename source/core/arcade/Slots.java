@@ -395,20 +395,68 @@ public class Slots extends Game {
 
     private void payTable(Gfx g, float w, float h) {
         Theme th = ui.th;
-        g.color(C.a(th.bg, 0.94f)); g.rect(0, 0, w, h);
-        ui.title(g, "pay table", w / 2, 40, 36, th.accent(C.YELLOW));
-        float rowH = Math.min(48, (h - 160) / 9), y = 80;
+        g.color(0xDC000000); g.rect(0, 0, w, h);
+
+        float mw = Math.min(w - 20, Math.max(w * 0.90f, 680));
+        float mh = Math.min(h - 20, 580);
+        float mx = (w - mw) / 2;
+        float my = (h - mh) / 2;
+        float r = 4.0f;
+
+        ui.dropShadowGlow(g, mx, my, mw, mh, r, C.YELLOW, 1.4f);
+        g.color(0xFF000000);
+        g.rrect(mx, my, mw, mh, r);
+        g.color(0xFFFFFFFF);
+        g.rrectStroke(mx, my, mw, mh, r, 2.5f);
+
+        ui.title(g, "PAY TABLE / ВЫПЛАТЫ", mx + mw / 2, my + 34, 26, C.YELLOW);
+
+        // 2 Columns layout: Left column = symbols 0..4 (5 items), Right column = symbols 5..8 (4 items) + scatter info
+        float colW = (mw - 50) / 2;
+        float rowH = Math.max(48, (mh - 150) / 5f);
+        float fruitR = Math.max(18, rowH * 0.34f);
+
         for (int i = 0; i < NSYM; i++) {
-            float cx = Math.max(40, w / 2 - 190);
-            Art.fruit(g, i, cx, y + rowH / 2, rowH * 0.36f);
+            float colX = (i < 5) ? (mx + 20) : (mx + 30 + colW);
+            int rowIdx = (i < 5) ? i : (i - 5);
+            float rowY = my + 64 + rowIdx * rowH;
+
+            // Row item background box
+            g.color(0xFF0F172A);
+            g.rrect(colX, rowY + 2, colW, rowH - 4, 3.0f);
+            g.color(0xFF334155);
+            g.rrectStroke(colX, rowY + 2, colW, rowH - 4, 3.0f, 1.2f);
+
+            Art.fruit(g, i, colX + fruitR + 10, rowY + rowH / 2, fruitR);
+
             String t;
-            if (i == SCATTER) t = "3+ anywhere: free spins, x1.5 / x5 / x20";
-            else t = "x" + trim(PAY[i][0]) + "   x" + trim(PAY[i][1]) + "   x" + trim(PAY[i][2]) + (i == WILD ? "   (substitutes)" : "");
-            ui.label(g, t, cx + 36, y + rowH / 2, 16, false, Gfx.LEFT, th.fg, w - cx - 50);
-            y += rowH;
+            if (i == SCATTER) {
+                t = "3+ шт: FREE SPINS (x1.5 / x5 / x20)";
+            } else if (i == WILD) {
+                t = "x" + trim(PAY[i][0]) + " / x" + trim(PAY[i][1]) + " / x" + trim(PAY[i][2]) + " (WILD)";
+            } else {
+                t = "x" + trim(PAY[i][0]) + "  •  x" + trim(PAY[i][1]) + "  •  x" + trim(PAY[i][2]);
+            }
+            int txtColor = (i == SCATTER) ? C.PINK : (i == WILD ? C.YELLOW : th.fg);
+            ui.label(g, t, colX + fruitR * 2 + 18, rowY + rowH / 2, 17, true, Gfx.LEFT, txtColor, colW - fruitR * 2 - 24);
         }
-        ui.label(g, "3 / 4 / 5 on a payline, left to right. Free spins pay x2.", w / 2, y + 16, 14, false, Gfx.CENTER, th.dim, w - 30);
-        if (ui.button(g, "Close", w / 2 - 90, h - 70, 180, 50, color)) showPay = false;
+
+        // Rules notice in right column 5th slot
+        float noticeY = my + 64 + 4 * rowH;
+        float noticeX = mx + 30 + colW;
+        g.color(0xFF0F172A);
+        g.rrect(noticeX, noticeY + 2, colW, rowH - 4, 3.0f);
+        g.color(0xFF334155);
+        g.rrectStroke(noticeX, noticeY + 2, colW, rowH - 4, 3.0f, 1.2f);
+        ui.label(g, "3, 4, 5 в линию слева направо. Free spins x2!", noticeX + colW / 2, noticeY + rowH / 2, 14, false, Gfx.CENTER, C.YELLOW, colW - 12);
+
+        // Close button
+        float btnW = Math.min(240, mw - 60);
+        float btnH = 50;
+        float btnY = my + mh - btnH - 14;
+        if (ui.button(g, "Закрыть", mx + (mw - btnW) / 2, btnY, btnW, btnH, color)) {
+            showPay = false;
+        }
     }
 
     private static String trim(double d) { return d == Math.floor(d) ? "" + (int) d : String.format("%.2f", d).replaceAll("0+$", ""); }
