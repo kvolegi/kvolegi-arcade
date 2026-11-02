@@ -1,202 +1,120 @@
 ================================================================================
-KVOLEGI ARCADE - COMPREHENSIVE TECHNICAL DOCUMENTATION & ARCHITECTURE SPECIFICATION
+KVOLEGI ARCADE - TECHNICAL ARCHITECTURE & PLATFORM GUIDE
 ================================================================================
 Author:      kvolegi (@kvolegi)
 Timeline:    November 2023 - April 2024
 Language:    Java 17 / 21, JavaFX 21, Android SDK (API 24 - 35)
-Platforms:   Microsoft Windows, macOS, Android
-License:     Proprietary - Copyright (c) 2023-2024 kvolegi. All Rights Reserved.
+Platforms:   macOS, Linux, Windows, Android
 ================================================================================
 
-1. PROJECT OVERVIEW & ARCHITECTURAL PHILOSOPHY
+1. PROJECT OVERVIEW
 --------------------------------------------------------------------------------
-kvolegi arcade is an enterprise-grade, multiplatform retro-neon arcade game suite
-developed from the ground up to demonstrate mastery in:
-- Modern cross-platform architecture design (Shared Pure Java Core + Platform Frontends)
-- Native UI performance without reliance on bloated 3rd-party game engines
-- Real-time memory management, dynamic array reallocation, and in-RAM state preservation
-- Algorithmic design (Minimax / Heuristic tactical threat detection AI)
-- High-stakes game math (Las Vegas casino RTP slot reel payout distributions)
-- Deterministic 60 FPS multi-threaded game loops on mobile
-- Automated native packaging (Windows PE32 .exe via Launch4j, signed APK, macOS .app)
+kvolegi arcade is a cross-platform retro-neon arcade game suite developed from
+scratch to explore:
+- Modular cross-platform architecture (Shared Pure Java Core + Platform UIs)
+- Direct 2D rendering without relying on heavyweight third-party game engines
+- Real-time memory layout, dynamic array expansion, and in-RAM board remapping
+- Algorithmic threat detection for board game AI
+- Slot reel mathematics with authentic Las Vegas payout curves
+- Dedicated 60 FPS background thread loops on mobile
+- Standalone packaging (macOS .app bundle, universal cross-platform JAR, Android APK)
 
-The application bundles four complete arcade games:
-1. Tic Tac Toe (Neon Edition) - Infinite dynamic expanding board, 5-in-a-row rule, AI.
-2. Sigma Slots - 4x5 reel matrix, 20 authentic paylines, Vegas slot math, custom bet modal.
-3. Beer Snake - 25 curated difficulty levels, toroidal wrap-around vs fatal walls.
-4. Bobr Minesweeper - Safe-first-click matrix, Sonar radar pulse, broccoli flagging.
+Games included in the suite:
+1. Tic Tac Toe (Neon Edition) - Expanding dynamic grid, 5-in-a-row rules, heuristic AI.
+2. Sigma Slots - 4x5 reel matrix, 20 paylines, custom bet inputs.
+3. Beer Snake - 25 progression levels, switchable toroidal wrapping vs solid walls.
+4. Bobr Minesweeper - Safe-first-click generator, Sonar radar pulse, flag placement.
 
 
-2. CROSS-PLATFORM STRATEGY: WHY JAVAFX ON PC AND NATIVE CANVAS ON MOBILE?
+2. ARCHITECTURE OVERVIEW
 --------------------------------------------------------------------------------
-A key design decision in this project was avoiding heavy "one-size-fits-all" engines
-(such as Unity, Unreal, or Godot). While cross-platform engines simplify development,
-they impose significant trade-offs: massive binary size (30-60 MB minimum), high RAM
-overhead, sluggish boot times, and heavy battery consumption on mobile devices.
+A core design goal was avoiding heavy one-size-fits-all engines like Unity or Godot.
+While useful for complex 3D worlds, general engines add substantial binary bloat,
+high idle memory footprints, and heavy battery drain on mobile devices.
 
-Instead, kvolegi arcade employs a clean three-tier architecture:
+Instead, the codebase uses a clean three-tier architecture:
 - Core Module:    100% Pure Java Standard Library, zero external dependencies.
-- PC Frontend:    JavaFX 21 with GPU hardware-accelerated scene graphs.
-- Mobile Frontend: Native Android SurfaceView with a dedicated background RenderThread.
+- Desktop UI:     JavaFX 21 with hardware-accelerated scene graphs.
+- Mobile UI:      Native Android SurfaceView with a dedicated background RenderThread.
 
-A. Why JavaFX on PC?
-1. Hardware Acceleration: JavaFX binds directly to native graphics subsystems
-   (DirectX on Windows, Metal/OpenGL on macOS). This enables rich visual filters
-   such as real-time Gaussian drop-shadows and neon glow pulse animations at 60+ FPS
-   with near-zero CPU usage.
-2. Clean Reactive Layout Hierarchy: JavaFX provides robust layout containers
-   (BorderPane, VBox, GridPane) with native observable properties (widthProperty,
-   heightProperty). This allows the desktop application to dynamically adapt to any
-   arbitrary window dimensions (800x600 windowed up to 4K Ultra-HD).
-3. Zero-Overlap Hit-Testing: JavaFX controls support explicit setPickOnBounds(false)
-   configuration. This ensures visual Gaussian glow effects (radius 50px) do not
-   corrupt the mouse event dispatcher, guaranteeing 100% click accuracy across adjacent
-   buttons.
-4. Native Packaging: Fully wraps into native Windows .exe binaries using Launch4j
-   (with embedded icon, version info, and JRE discovery) and macOS .app bundles.
+A. Desktop (JavaFX):
+1. Hardware Acceleration: JavaFX connects directly to native graphics subsystems
+   (Metal/OpenGL on macOS, DirectX on Windows). This powers real-time Gaussian
+   drop-shadows and neon glow pulse animations at 60 FPS with minimal CPU load.
+2. Responsive Layout Hierarchy: Containers like BorderPane, VBox, and GridPane
+   adapt dynamically from standard 800x600 windows up to 4K displays.
+3. Event Dispatch Safety: Desktop controls set setPickOnBounds(false) to ensure
+   large 50px glow shaders do not capture click events intended for adjacent buttons.
 
-B. Why Native Android SurfaceView on Mobile?
-1. Featherlight Binary Footprint: The entire Android APK is only ~5.6 MB! A comparable
-   game in Unity or LibGDX would exceed 40-50 MB.
-2. Decoupled 60 FPS Game Loop: Instead of running on the Android Main UI Thread,
-   all rendering and game physics execute on a dedicated background RenderThread
-   (ArcadeView.java). Double-buffering via SurfaceHolder.lockCanvas() ensures zero
-   frame stuttering, even during heavy GC cycles.
-3. Battery Efficiency: Memory allocations inside the render loop are strictly
-   zeroed through pre-allocated sprite caches, primitive coordinate calculations,
-   and object pooling.
-4. Native OS Modals: Interactive input dialogs (such as entering custom wagers in
-   Slots) leverage native Android AlertDialogs with numerical soft keyboards,
-   providing a crisp, intuitive mobile user experience.
+B. Mobile (Android Native SurfaceView):
+1. Compact Binary: The full release APK is ~5.6 MB, roughly one-tenth the size of a
+   comparable Unity or LibGDX build.
+2. Thread Isolation: The game loop runs on a background worker thread (ArcadeView.java)
+   that locks and unlocks the hardware canvas via double-buffering, completely
+   insulating the Android OS UI thread from calculation spikes.
 
 
-3. TECHNICAL HIGHLIGHTS & GAME ALGORITHMS
+3. RUNNING & INSTALLATION
 --------------------------------------------------------------------------------
+A. Universal JAR (Windows, Linux, macOS):
+   The universal desktop JAR is located at:
+     builds/kvolegi-arcade-universal.jar
 
-A. Tic Tac Toe: Infinite Board & In-RAM Centered Expansion
-Standard Tic Tac Toe is trivial and limited to 3x3 grids. kvolegi arcade implements
-an infinite dynamic board architecture:
-1. Dynamic In-RAM Expansion:
-   The game starts with a 5x5 board. When more than 50% of the cells are populated:
-   - The current board state is captured in RAM into an oldBoard[N][N] snapshot.
-   - The grid size expands by +5 (boardSize = boardSize + 5) up to 25x25.
-   - The old moves are mapped into the new grid with centered coordinate offsets:
-     offset = (newSize - oldSize) / 2;
-     newRow = oldRow + offset;
-     newCol = oldCol + offset;
-   - All cell states (symbol, neon text colors, borders, effects) are preserved
-     without losing player progress or resetting the game.
-2. Adaptive Cell Sizing:
-   On every board resize or window change, the cell dimensions are recomputed:
-   maxGridH = Math.max(180, winH - 155);
-   maxGridW = Math.max(180, winW - 60);
-   maxBoardPx = Math.min(maxGridW, maxGridH);
-   cellSize = (maxBoardPx - (boardSize - 1) * CELL_GAP) / boardSize;
-   cellSize = Math.max(18, Math.min(88, cellSize));
-3. Tactical Heuristic AI (Nightmare Difficulty):
-   The AI scans four directional vectors:
-   - Horizontal:    (row, col + 1)
-   - Vertical:      (row + 1, col)
-   - Main Diagonal: (row + 1, col + 1)
-   - Anti-Diagonal: (row + 1, col - 1)
-   For every empty cell, it evaluates threats for both player and computer:
-   - Win condition (5-in-a-row): +50,000 points.
-   - Block opponent 4-in-a-row: +15,000 points (two open ends) / +4,000 (one open end).
-   - Double-threat forks (3-in-a-row with both open ends): +1,200 points.
-   - Center-proximity bonus: Math.max(0, 10 - distance_to_center * 2).
-4. Time-Attack Score Mode:
-   A 60-second countdown timer runs concurrently with real-time recalculation of all
-   consecutive 5-in-a-row lines on the board.
+   Run via command line with Java 17 or Java 21+:
+     java -jar builds/kvolegi-arcade-universal.jar
 
-B. Sigma Slots: Las Vegas Casino Payout Mathematics
-1. Reel Matrix: 4 rows x 5 reels (20 grid symbols per spin).
-2. 20 Authentic Paylines:
-   - Horizontal lines: Rows 0, 1, 2, 3
-   - Diagonals: Top-left to bottom-right, bottom-left to top-right
-   - V-shapes and Carets (^): Connecting corners to center reels
-   - Waveforms and Zigzags: Connecting alternating rows across all 5 columns
-3. Volatility & Return to Player (RTP) Balance:
-   - Standard Fruits: Grape, Watermelon, Lemon, Pineapple, Plum (0.18x to 2.5x)
-   - Premium Fruits: Dragonfruit, Banana (0.35x to 6.0x)
-   - WILD Symbol: BIGBANANA (1.8x to 12.0x, substitutes for any standard fruit)
-   - SCATTER Symbol: BIGWIN (4.0x to 30.0x jackpot payout)
-4. Custom Wager Window:
-   Direct wager editing via numeric text field or native modal dialog with full balance
-   capping and validation.
+   Prerequisites:
+   - Windows: Install OpenJDK via winget (`winget install EclipseAdoptium.Temurin.21.JRE`)
+     or download an installer from adoptium.net.
+   - Linux: Install JRE (`sudo apt install openjdk-21-jre` on Debian/Ubuntu,
+     `sudo dnf install java-21-openjdk` on Fedora).
 
-C. Beer Snake: Dual-Mode Physics & Progression Curves
-1. Level Progression: 25 structured stages. Players must collect 4 beer items per stage.
-   Speed dynamically increases per stage:
-   Delay(ms) = max(60ms, baseSpeed - level * 5ms)
-2. Wall Collision Modes:
-   - Solid Walls: Coordinate check (x < 0 || x >= cols || y < 0 || y >= rows) triggers
-     immediate game over.
-   - Pass-Through (Toroidal): Coordinates wrap seamlessly:
-     x = (x + cols) % cols;
-     y = (y + rows) % rows;
+B. macOS Application Bundle:
+   Located at:
+     builds/mac/kvolegi arcade.app
 
-D. Bobr Minesweeper: Tactical Sonar & Guaranteed Safety
-1. Safe First Click: The mine layout is dynamically populated only after the user's
-   first click, guaranteeing that the first tile is always empty (0 adjacent mines)
-   and triggers a flood-fill cascading reveal.
-2. Sonar Radar Pulse: A unique tactical ability that scans a 3x3 radius and reveals
-   hidden beavers safely without detonating them.
+   - Double-click `kvolegi arcade.app` in Finder to launch.
+   - If macOS Gatekeeper blocks opening with an unverified developer warning, run:
+       xattr -cr "builds/mac/kvolegi arcade.app"
+     or right-click the app in Finder and choose "Open".
+   - You can also launch via terminal:
+       ./builds/mac/run_mac.sh
+
+C. Android APK:
+   Located at:
+     builds/android/kvolegi-arcade.apk
+
+   - Transfer the file to an Android device (API 24+ / Android 7.0 or newer).
+   - Tap to install and run.
 
 
-4. SKILLS & COMPETENCIES DEMONSTRATED
+4. GAME MECHANICS REFERENCE
 --------------------------------------------------------------------------------
-1. Advanced Software Engineering:
-   - Clean Architecture, Separation of Concerns (SoC), and DRY principles.
-   - Decoupling domain business logic from UI rendering engines.
-2. Java & JVM Mastery:
-   - Java 17/21 language features, functional interfaces, lambdas, and Stream APIs.
-   - High-performance multi-threading and thread synchronization.
-3. Computer Graphics & UI/UX:
-   - Custom 2D hardware-accelerated rendering pipelines.
-   - Neon glow bloom shaders, Gaussian drop-shadow filters, and color transitions.
-   - Vector SVG icon rendering and Retina / High-DPI display calibration.
-4. Mobile Engineering:
-   - Native Android SDK (Activities, SurfaceView, SurfaceHolder, Canvas, Paint).
-   - Touch gesture handling and native modal lifecycle integration.
-5. Build Automation & DevOps:
-   - Multi-platform packaging: Windows Native PE32 executable (Launch4j),
-     macOS .app application bundle, and Android signed release APK.
+A. Tic Tac Toe (Dynamic Expansion):
+   - Starts at 5x5. When more than 50% of the cells are played, the matrix expands
+     by 5 rows and 5 columns up to 25x25.
+   - Center offset formula: Delta = (N_new - N_old) / 2.
+   - Heuristic AI weights: Win immediate = +50,000, Block 4-in-a-row = +15,000,
+     Create fork = +1,200.
+
+B. Sigma Slots:
+   - 4 rows by 5 reels with 20 distinct paylines.
+   - Wild symbol substitutes for standard fruits; Scatter symbols pay independent
+     of payline alignment.
+
+C. Beer Snake:
+   - 25 speed tiers scaling from 185ms down to a 60ms minimum frame tick.
+   - Toggleable boundaries (fatal walls vs. toroidal coordinate wrap).
+
+D. Bobr Minesweeper:
+   - First-click safe matrix generator guarantees a zero-mine starting cell.
+   - Sonar radar pulse uncovers neighboring cells without detonation risk.
 
 
-5. AUTOMATED TESTING, QUALITY ASSURANCE & MATHEMATICAL VERIFICATION
+5. TESTING
 --------------------------------------------------------------------------------
-The suite includes an automated regression and mathematical verification test harness
-(tests/ArcadeTestSuite.java, executable via 'python3 tests/run_tests.py' or 'java tests/ArcadeTestSuite.java').
+Run the automated test suite directly using the Java source runner:
+  java tests/ArcadeTestSuite.java
 
-1. Tic Tac Toe Dynamic Expansion & State Preservation:
-   - Validates that when cell occupancy crosses 50%, the board dynamically expands from
-     5x5 to 10x10 and preserves all cell values at (r + offset, c + offset).
-   - Validates multi-directional 5-in-a-row victory detection across all 4 vector axes.
-   - Evaluates AI heuristic scores (immediate win 50k > block opponent 4-in-a-row 15k).
-
-2. Sigma Slots Mathematics & Paylines:
-   - Validates 20 authentic Las Vegas paylines across the 4x5 reel matrix.
-   - Confirms Wild substitution logic and Scatter jackpot multiplier triggers.
-   - Confirms wager boundary clamping (minimum 10 credits, maximum available balance).
-
-3. Physics & Gameplay Safety:
-   - Validates Beer Snake toroidal coordinate wrap-around formula and solid wall collisions.
-   - Verifies 25-stage speed interpolation down to 60ms minimum frame delay.
-   - Verifies Bobr Minesweeper guaranteed 0-mine first click and 3x3 Sonar radar sweep.
-
-4. UI Hit-Testing & Precision Boundaries:
-   - Verifies setPickOnBounds(false) ensures 50px Gaussian glow filters do not
-     intercept mouse clicks on adjacent buttons.
-
-
-6. COPYRIGHT & INTELLECTUAL PROPERTY NOTICE
---------------------------------------------------------------------------------
-Project Name: kvolegi arcade
-Author:       kvolegi (@kvolegi)
-Copyright:    (c) 2023-2024 kvolegi. All rights reserved.
-
-All code, graphics, formulas, and binary outputs in this repository are the exclusive
-intellectual property of @kvolegi. This repository is maintained as a portfolio
-demonstration of software engineering capabilities. Commercial redistribution,
-unauthorized duplication, and re-hosting are strictly prohibited.
-================================================================================
+Or via the Python helper:
+  python3 tests/run_tests.py
