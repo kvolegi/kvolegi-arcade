@@ -15,7 +15,11 @@ import shutil
 import subprocess
 import urllib.request
 import ssl
-from PIL import Image
+
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
 
 # Ensure unverified HTTPS context for reliable jar downloads in sandboxed/headless envs
 try:
@@ -208,9 +212,14 @@ def build_desktop():
     # 3. Windows Native PE32 .exe via Launch4j
     exe_out = os.path.join(WIN_BUILD, "kvolegi-arcade.exe")
     icon_path = "/tmp/app_icon.ico"
-    if not os.path.exists(icon_path):
-        img = Image.open(os.path.join(ICONS_SRC, "app_icon_256.png"))
-        img.save(icon_path, format="ICO", sizes=[(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)])
+    if Image is not None and not os.path.exists(icon_path):
+        icon_src = os.path.join(ICONS_SRC, "app_icon_256.png")
+        if os.path.exists(icon_src):
+            try:
+                img = Image.open(icon_src)
+                img.save(icon_path, format="ICO", sizes=[(16,16),(32,32),(48,48),(64,64),(128,128),(256,256)])
+            except Exception:
+                pass
 
     launch4jc = "/tmp/launch4j_dir/launch4j/launch4jc"
     if os.path.exists(launch4jc):
