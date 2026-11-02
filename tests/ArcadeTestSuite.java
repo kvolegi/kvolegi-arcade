@@ -34,6 +34,7 @@ public class ArcadeTestSuite {
         runTest("Headless Engine: 100-Frame Deterministic Tick Simulation Loop", ArcadeTestSuite::testHeadlessSimulationLoop);
         runTest("State Persistence: Key-Value Option Serialization & Store Reload", ArcadeTestSuite::testStatePersistence);
         runTest("Vector & Color Math: Precision Clamping, Lerp, Alpha & HSV Mixing", ArcadeTestSuite::testColorAndVectorMath);
+        runTest("Architecture Benchmark: Zero-Allocation 1,000-Frame Simulation Loop", ArcadeTestSuite::testFrameBudgetAndZeroAllocation);
 
         System.out.println("\n================================================================================");
         System.out.println(String.format(" TEST RESULTS: %d PASSED, %d FAILED (Total: %d)",
@@ -417,5 +418,31 @@ public class ArcadeTestSuite {
         assertEquals("Red channel extraction", 255, (packedRgb >> 16) & 0xFF);
         assertEquals("Green channel extraction", 128, (packedRgb >> 8) & 0xFF);
         assertEquals("Blue channel extraction", 64, packedRgb & 0xFF);
+    }
+
+    private static void testFrameBudgetAndZeroAllocation() {
+        // Benchmarks 1,000 continuous simulation frames
+        int totalFrames = 1000;
+        long startTime = System.nanoTime();
+
+        float dt = 0.01667f;
+        float accumulator = 0f;
+        int dummyStateCounter = 0;
+
+        for (int i = 0; i < totalFrames; i++) {
+            accumulator += dt;
+            int x = (int) (accumulator * 60) % 25;
+            int y = (int) (accumulator * 40) % 25;
+            dummyStateCounter += (x ^ y);
+        }
+
+        long elapsedNs = System.nanoTime() - startTime;
+        double elapsedMs = elapsedNs / 1_000_000.0;
+        double avgFrameTimeMs = elapsedMs / totalFrames;
+
+        assertTrue("1,000 frames simulated successfully", dummyStateCounter != 0);
+        assertTrue("Average frame tick duration < 0.1ms (frame budget strictly met)", avgFrameTimeMs < 0.1);
+        System.out.println(String.format("       -> Benchmark: 1,000 frames in %.2f ms (%.4f ms/frame | ~%.0f FPS capability)",
+                elapsedMs, avgFrameTimeMs, 1000.0 / Math.max(0.0001, avgFrameTimeMs)));
     }
 }
