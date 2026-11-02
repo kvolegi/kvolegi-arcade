@@ -49,6 +49,12 @@
         <sourceDirectory>source/core</sourceDirectory>
         <testSourceDirectory>tests</testSourceDirectory>
 
+        <resources>
+            <resource>
+                <directory>source/assets</directory>
+            </resource>
+        </resources>
+
         <plugins>
             <!-- Add desktop source directory to compilation classpath -->
             <plugin>
@@ -94,6 +100,39 @@
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+
+            <!-- Shade Plugin to bundle dependencies and create runnable fat JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.2</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>arcade.desktop.Launcher</mainClass>
+                                </transformer>
+                            </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>module-info.class</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Surefire Test Runner -->

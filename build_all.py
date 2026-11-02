@@ -14,7 +14,15 @@ import sys
 import shutil
 import subprocess
 import urllib.request
+import ssl
 from PIL import Image
+
+# Ensure unverified HTTPS context for reliable jar downloads in sandboxed/headless envs
+try:
+    ssl_context = ssl._create_unverified_context()
+    ssl._create_default_https_context = ssl._create_unverified_context
+except AttributeError:
+    ssl_context = None
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 CORE_SRC = os.path.join(ROOT, "source/core")
@@ -28,17 +36,47 @@ MAC_BUILD = os.path.join(BUILDS_DIR, "mac")
 WIN_BUILD = os.path.join(BUILDS_DIR, "windows")
 APK_BUILD = os.path.join(BUILDS_DIR, "android")
 
+JFX_VERSION = "21.0.4"
+JFX_CACHE = "/tmp/jfx_cache"
+
+def ensure_jfx_jar(module, platform):
+    os.makedirs(JFX_CACHE, exist_ok=True)
+    filename = f"javafx-{module}-{JFX_VERSION}-{platform}.jar"
+    cached = os.path.join(JFX_CACHE, filename)
+    if os.path.exists(cached) and os.path.getsize(cached) > 10000:
+        return cached
+
+    # Check local Maven cache
+    m2_path = os.path.expanduser(f"~/.m2/repository/org/openjfx/javafx-{module}/{JFX_VERSION}/{filename}")
+    if os.path.exists(m2_path) and os.path.getsize(m2_path) > 10000:
+        return m2_path
+
+    url = f"https://repo1.maven.org/maven2/org/openjfx/javafx-{module}/{JFX_VERSION}/{filename}"
+    print(f"Downloading {filename} from Maven Central...")
+    try:
+        urllib.request.urlretrieve(url, cached)
+        return cached
+    except Exception as e:
+        print(f"Failed to download {url}: {e}")
+        # Fallback to 21.0.2 if 21.0.4 fails
+        fallback_url = f"https://repo1.maven.org/maven2/org/openjfx/javafx-{module}/21.0.2/javafx-{module}-21.0.2-{platform}.jar"
+        fallback_cached = os.path.join(JFX_CACHE, f"javafx-{module}-21.0.2-{platform}.jar")
+        if os.path.exists(fallback_cached) and os.path.getsize(fallback_cached) > 10000:
+            return fallback_cached
+        urllib.request.urlretrieve(fallback_url, fallback_cached)
+        return fallback_cached
+
 def build_desktop():
     print("=" * 60)
-    print("BUILDING DESKTOP ARTIFACTS (macOS & Windows)...")
+    print("BUILDING DESKTOP ARTIFACTS (Universal, macOS & Windows)...")
     print("=" * 60)
 
-    jfx_mac_jars = [
-        os.path.expanduser("~/.m2/repository/org/openjfx/javafx-base/21.0.4/javafx-base-21.0.4-mac.jar"),
-        os.path.expanduser("~/.m2/repository/org/openjfx/javafx-graphics/21.0.4/javafx-graphics-21.0.4-mac.jar"),
-        os.path.expanduser("~/.m2/repository/org/openjfx/javafx-controls/21.0.4/javafx-controls-21.0.4-mac.jar")
-    ]
-    jfx_cp = ":".join(jfx_mac_jars)
+    # Modules needed
+    modules = ["base", "graphics", "controls"]
+
+    # Gather jars for compilation
+    compile_jars = [ensure_jfx_jar(m, "mac") for m in modules]
+    jfx_cp = ":".join(compile_jars)
 
     build_tmp = "/tmp/arcade_desktop_build_auto"
     if os.path.exists(build_tmp):
@@ -78,7 +116,8 @@ def build_desktop():
         else:
             shutil.copy2(s, d)
 
-    for jar in jfx_mac_jars:
+    mac_jars = [ensure_jfx_jar(m, "mac") for m in modules]
+    for jar in mac_jars:
         subprocess.run(["jar", "xf", jar], cwd=classes_mac, check=True)
 
     mi = os.path.join(classes_mac, "module-info.class")
@@ -116,18 +155,9 @@ def build_desktop():
         else:
             shutil.copy2(s, d)
 
-    win_jars = [
-        ("javafx-base-21.0.2-win.jar", "https://repo1.maven.org/maven2/org/openjfx/javafx-base/21.0.2/javafx-base-21.0.2-win.jar"),
-        ("javafx-graphics-21.0.2-win.jar", "https://repo1.maven.org/maven2/org/openjfx/javafx-graphics/21.0.2/javafx-graphics-21.0.2-win.jar"),
-        ("javafx-controls-21.0.2-win.jar", "https://repo1.maven.org/maven2/org/openjfx/javafx-controls/21.0.2/javafx-controls-21.0.2-win.jar")
-    ]
-    cache_dir = "/tmp/jfx_win_cache"
-    os.makedirs(cache_dir, exist_ok=True)
-    for name, url in win_jars:
-        cached_path = os.path.join(cache_dir, name)
-        if not os.path.exists(cached_path):
-            urllib.request.urlretrieve(url, cached_path)
-        subprocess.run(["jar", "xf", cached_path], cwd=classes_win, check=True)
+    win_jars = [ensure_jfx_jar(m, "win") for m in modules]
+    for jar in win_jars:
+        subprocess.run(["jar", "xf", jar], cwd=classes_win, check=True)
 
     mi = os.path.join(classes_win, "module-info.class")
     if os.path.exists(mi):
@@ -140,6 +170,40 @@ def build_desktop():
     jar_win = os.path.join(WIN_BUILD, "kvolegi-arcade-windows.jar")
     subprocess.run(["jar", "cfm", jar_win, manifest_win, "-C", classes_win, "."], check=True)
     print(f"Created Windows JAR: {jar_win} ({os.path.getsize(jar_win):,} bytes)")
+
+    # 3. Universal Multi-OS Cross-Platform JAR
+    universal_staging = "/tmp/arcade_universal_staging_auto"
+    if os.path.exists(universal_staging):
+        shutil.rmtree(universal_staging)
+    os.makedirs(universal_staging)
+    classes_univ = os.path.join(universal_staging, "classes")
+    shutil.copytree(build_tmp, classes_univ)
+
+    for item in os.listdir(ASSETS_SRC):
+        s = os.path.join(ASSETS_SRC, item)
+        d = os.path.join(classes_univ, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, dirs_exist_ok=True)
+        else:
+            shutil.copy2(s, d)
+
+    linux_jars = [ensure_jfx_jar(m, "linux") for m in modules]
+    all_platform_jars = mac_jars + win_jars + linux_jars
+    for jar in all_platform_jars:
+        subprocess.run(["jar", "xf", jar], cwd=classes_univ, check=True)
+
+    mi = os.path.join(classes_univ, "module-info.class")
+    if os.path.exists(mi):
+        os.remove(mi)
+
+    manifest_univ = os.path.join(universal_staging, "MANIFEST.MF")
+    with open(manifest_univ, "w") as f:
+        f.write("Manifest-Version: 1.0\nMain-Class: arcade.desktop.Launcher\n")
+
+    os.makedirs(BUILDS_DIR, exist_ok=True)
+    jar_univ = os.path.join(BUILDS_DIR, "kvolegi-arcade-universal.jar")
+    subprocess.run(["jar", "cfm", jar_univ, manifest_univ, "-C", classes_univ, "."], check=True)
+    print(f"Created Universal Cross-Platform JAR: {jar_univ} ({os.path.getsize(jar_univ):,} bytes)")
 
     # 3. Windows Native PE32 .exe via Launch4j
     exe_out = os.path.join(WIN_BUILD, "kvolegi-arcade.exe")
