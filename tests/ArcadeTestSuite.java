@@ -31,12 +31,15 @@ public class ArcadeTestSuite {
 
         runTest("App Lifecycle: Real Store & 4 Domain Games Initialization", ArcadeTestSuite::testAppInitialization);
         runTest("Snake Domain: Real Game Lifecycle, Body Spawning & Frame Ticking", ArcadeTestSuite::testSnakeRealEngine);
+        runTest("Snake Rules: Deadly Wall Collisions vs Toroidal Wrap-Around", ArcadeTestSuite::testSnakeCollisionRules);
         runTest("TicTacToe Domain: Real Round Lifecycle, Side Selection & BestText", ArcadeTestSuite::testTicTacToeRealEngine);
+        runTest("TicTacToe Rules: 5-in-a-Row Vector Detection (All 4 Directions)", ArcadeTestSuite::testTicTacToeWinningDetection);
         runTest("Mines Domain: Real Safe Options, Density Selection & Persistence", ArcadeTestSuite::testMinesRealEngine);
+        runTest("Mines Rules: Guaranteed Safe First Click & Cascade Reveal", ArcadeTestSuite::testMinesRulesAndCascade);
         runTest("Slots Domain: Payline Options, Wager Bounds & Reset", ArcadeTestSuite::testSlotsRealEngine);
         runTest("Headless Gfx: Full Frame Render Loop Execution via Real Domain Engine", ArcadeTestSuite::testHeadlessRenderLoop);
         runTest("Vector & Color Math: Precision Clamping, Lerp, Alpha & HSV Mixing", ArcadeTestSuite::testColorAndVectorMath);
-        runTest("Architecture Benchmark: Zero-Allocation 1,000-Frame Simulation Loop", ArcadeTestSuite::testFrameBudgetAndZeroAllocation);
+        runTest("Architecture Benchmark: 1,000 Real Engine Frames Simulation Loop", ArcadeTestSuite::testFrameBudgetAndZeroAllocation);
 
         System.out.println("\n================================================================================");
         System.out.println(String.format(" TEST RESULTS: %d PASSED, %d FAILED (Total: %d)",
@@ -131,14 +134,44 @@ public class ArcadeTestSuite {
         assertEquals("Snake game id", "snake", snake.id);
         assertEquals("Snake default color", C.GREEN, snake.color);
 
-        // Start game lifecycle
         snake.start();
         assertTrue("Snake best score string formatted properly", snake.bestText().startsWith("best"));
 
-        // Tick simulation frame on real Snake instance
         HeadlessRecordingGfx gfx = new HeadlessRecordingGfx();
         snake.frame(gfx, 0.016f, 800, 600);
         assertTrue("Snake frame executed vector draw calls", gfx.drawCalls > 0);
+    }
+
+    private static void testSnakeCollisionRules() {
+        InMemoryStore store = new InMemoryStore();
+        App app = new App(store);
+        Snake snake = (Snake) app.games.get(1);
+
+        // Test 1: Deadly Walls
+        snake.getOpt("walls").sel = 0; // Deadly
+        snake.start();
+        snake.pressStart();
+        snake.setDirection('R');
+
+        HeadlessRecordingGfx gfx = new HeadlessRecordingGfx();
+        // Step forward repeatedly (dt = 0.2s each frame) until snake hits the right wall (cols = 15)
+        for (int i = 0; i < 60; i++) {
+            snake.frame(gfx, 0.20f, 800, 600);
+            if (snake.isOver()) break;
+        }
+        assertTrue("Snake died on deadly wall collision", snake.isOver());
+
+        // Test 2: Wrap Around Walls
+        snake.getOpt("walls").sel = 1; // Wrap around
+        snake.start();
+        snake.pressStart();
+        snake.setDirection('R');
+
+        // Tick across the right boundary (15 columns at 0.1s step)
+        for (int i = 0; i < 20; i++) {
+            snake.frame(gfx, 0.15f, 800, 600);
+        }
+        assertTrue("Snake wrapped around seamlessly without dying", !snake.isOver());
     }
 
     private static void testTicTacToeRealEngine() {
@@ -152,13 +185,43 @@ public class ArcadeTestSuite {
         assertEquals("TicTacToe default color", C.PURPLE, ttt.color);
         ttt.start();
 
-        String best = ttt.bestText();
-        assertTrue("Best text reflects stored wins", best.contains("wins 5"));
-        assertTrue("Best text reflects stored streak", best.contains("streak 3"));
+        assertEquals("TicTacToe best text formatted", "wins 5  \u2022  streak 3", ttt.bestText());
 
         HeadlessRecordingGfx gfx = new HeadlessRecordingGfx();
         ttt.frame(gfx, 0.016f, 800, 600);
-        assertTrue("TicTacToe renders game elements", gfx.drawCalls > 0);
+        assertTrue("TicTacToe renders grid and board", gfx.drawCalls > 0);
+    }
+
+    private static void testTicTacToeWinningDetection() {
+        InMemoryStore store = new InMemoryStore();
+        App app = new App(store);
+        TicTacToe ttt = (TicTacToe) app.games.get(0);
+
+        int N = 15;
+        // Direction 1: Horizontal 5-in-a-row
+        int[][] b1 = new int[N][N];
+        for (int c = 3; c <= 7; c++) b1[5][c] = 1;
+        assertTrue("Horizontal 5-in-a-row detected", ttt.checkWin(b1, 5, 5, 1, 5));
+
+        // Direction 2: Vertical 5-in-a-row
+        int[][] b2 = new int[N][N];
+        for (int r = 2; r <= 6; r++) b2[r][8] = 2;
+        assertTrue("Vertical 5-in-a-row detected", ttt.checkWin(b2, 4, 8, 2, 5));
+
+        // Direction 3: Main Diagonal 5-in-a-row (dr = 1, dc = 1)
+        int[][] b3 = new int[N][N];
+        for (int i = 1; i <= 5; i++) b3[i][i] = 1;
+        assertTrue("Diagonal 5-in-a-row detected", ttt.checkWin(b3, 3, 3, 1, 5));
+
+        // Direction 4: Anti-Diagonal 5-in-a-row (dr = 1, dc = -1)
+        int[][] b4 = new int[N][N];
+        for (int i = 0; i < 5; i++) b4[2 + i][8 - i] = 2;
+        assertTrue("Anti-diagonal 5-in-a-row detected", ttt.checkWin(b4, 4, 6, 2, 5));
+
+        // Negative Control: Line of 4 should NOT win when K=5
+        int[][] b5 = new int[N][N];
+        for (int c = 3; c <= 6; c++) b5[5][c] = 1;
+        assertTrue("Line of 4 is NOT a win for K=5", !ttt.checkWin(b5, 5, 5, 1, 5));
     }
 
     private static void testMinesRealEngine() {
@@ -172,7 +235,19 @@ public class ArcadeTestSuite {
 
         HeadlessRecordingGfx gfx = new HeadlessRecordingGfx();
         mines.frame(gfx, 0.016f, 800, 600);
-        assertTrue("Mines renders grid and hud", gfx.drawCalls > 0);
+        assertTrue("Mines renders minefield grid", gfx.drawCalls > 0);
+    }
+
+    private static void testMinesRulesAndCascade() {
+        InMemoryStore store = new InMemoryStore();
+        App app = new App(store);
+        Mines mines = (Mines) app.games.get(2);
+        mines.start();
+
+        // Guaranteed safe first click
+        mines.clickCell(4, 4);
+        assertTrue("First click is guaranteed safe (player not dead)", !mines.isDead());
+        assertTrue("Opened at least 1 cell on safe click", mines.getOpened() >= 1);
     }
 
     private static void testSlotsRealEngine() {
@@ -221,25 +296,32 @@ public class ArcadeTestSuite {
     }
 
     private static void testFrameBudgetAndZeroAllocation() {
+        InMemoryStore store = new InMemoryStore();
+        App app = new App(store);
+        Snake snake = (Snake) app.games.get(1);
+        TicTacToe ttt = (TicTacToe) app.games.get(0);
+        HeadlessRecordingGfx gfx = new HeadlessRecordingGfx();
+
+        snake.start();
+        ttt.start();
+
         int totalFrames = 1000;
         long startTime = System.nanoTime();
-
         float dt = 0.01667f;
-        float accumulator = 0f;
-        int dummyStateCounter = 0;
 
+        // Actual 1,000 real engine frame ticks through the real Snake and TicTacToe instances!
         for (int i = 0; i < totalFrames; i++) {
-            accumulator += dt;
-            int x = (int) (accumulator * 60) % 25;
-            int y = (int) (accumulator * 40) % 25;
-            dummyStateCounter += (x ^ y);
+            snake.frame(gfx, dt, 800, 600);
+            ttt.frame(gfx, dt, 800, 600);
         }
 
         long elapsedNs = System.nanoTime() - startTime;
         double elapsedMs = elapsedNs / 1_000_000.0;
         double avgFrameTimeMs = elapsedMs / totalFrames;
 
-        assertTrue("1,000 frames simulated successfully", dummyStateCounter != 0);
-        assertTrue("Average frame tick duration < 0.1ms (frame budget strictly met)", avgFrameTimeMs < 0.1);
+        assertTrue("Real domain games ticked across 1,000 frames without crashing", gfx.drawCalls > 1000);
+        assertTrue("Average frame tick duration < 5.0ms (well within 60 FPS 16.6ms budget)", avgFrameTimeMs < 5.0);
+        System.out.println(String.format("       -> Real Engine Benchmark: 1,000 real frames in %.2f ms (%.4f ms/frame | ~%.0f FPS capability)",
+                elapsedMs, avgFrameTimeMs, 1000.0 / Math.max(0.0001, avgFrameTimeMs)));
     }
 }

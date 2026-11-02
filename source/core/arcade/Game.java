@@ -34,6 +34,11 @@ public abstract class Game {
 
     public void saveOpts() { for (Opt o : opts) store.putInt(id + ".opt." + o.key, o.sel); }
 
+    public Opt getOpt(String key) {
+        for (Opt o : opts) if (o.key.equals(key)) return o;
+        return null;
+    }
+
     /** Re-read options/scores after the store was cleared. */
     public void reload() { for (Opt o : opts) o.sel = store.getInt(id + ".opt." + o.key, 0); }
 

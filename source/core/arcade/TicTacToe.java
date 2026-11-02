@@ -136,6 +136,12 @@ public class TicTacToe extends Game {
         }
     }
 
+    public boolean isEnded() { return ended; }
+    public int getWinner() { return winner; }
+    public boolean checkWin(int[][] board, int r, int c, int player, int winLen) {
+        return winsAt(board, r, c, player, winLen, null);
+    }
+
     // ------------------------------------------------------------------ AI
     private double lineValue(int[][] bd, int r, int c, int p, int K) {
         int N = bd.length;

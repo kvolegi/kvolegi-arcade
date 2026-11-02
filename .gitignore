@@ -33,3 +33,10 @@ captures/
 # Office documents (local notes/resumes)
 *.docx
 *.doc
+
+# Release artifacts (distributed via GitHub Releases, not git tree)
+builds/
+*.jar
+*.apk
+*.idsig
+*.app/

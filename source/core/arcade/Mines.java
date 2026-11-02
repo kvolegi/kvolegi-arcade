@@ -108,6 +108,11 @@ public class Mines extends Game {
 
     private void lose(int r, int c) { dead = true; hitR = r; hitC = c; endT = 0; }
 
+    public boolean isDead() { return dead; }
+    public boolean isWon() { return won; }
+    public int getOpened() { return opened; }
+    public void clickCell(int r, int c) { reveal(r, c); }
+
     private void win() {
         won = true; endT = 0;
         for (int r = 0; r < rows; r++) for (int c = 0; c < cols; c++) if (beaver[r][c]) flag[r][c] = true;

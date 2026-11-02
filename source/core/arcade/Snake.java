@@ -176,6 +176,12 @@ public class Snake extends Game {
         if (score > best) { store.putInt(bestKey(), score); newBest = score > 0; }
     }
 
+    public boolean isOver() { return over; }
+    public int getScore() { return score; }
+    public int getBodyLength() { return body.size(); }
+    public void setDirection(char d) { queue(d); }
+    public void pressStart() { waiting = false; }
+
     private void update(float dt) {
         for (int i = parts.size() - 1; i >= 0; i--) {
             float[] p = parts.get(i);
