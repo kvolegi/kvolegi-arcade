@@ -47,7 +47,7 @@ public class ArcadeTestSuite {
         System.out.println("================================================================================");
 
         if (testsFailed > 0) {
-            System.exit(1);
+            throw new AssertionError("Test suite failed: " + testsFailed + " tests failed.");
         }
     }
 
