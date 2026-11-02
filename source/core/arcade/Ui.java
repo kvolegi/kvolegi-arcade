@@ -1,6 +1,7 @@
 package arcade;
 
 import java.util.ArrayDeque;
+import java.util.concurrent.locks.ReentrantLock;
 
 /** Input state + immediate-mode widgets shared by every screen. */
 public class Ui {
@@ -16,14 +17,15 @@ public class Ui {
     private float lastSwipeX, lastSwipeY;
     public final ArrayDeque<String> keys = new ArrayDeque<>();
 
-    private final Object inputLock = new Object();
+    private final ReentrantLock inputLock = new ReentrantLock();
     private boolean pendingDown, pendingUp;
     private float pendDownX, pendDownY, pendUpX, pendUpY;
 
     public void beginFrame(float w, float h, float dt) {
         W = w; H = h; time += dt;
         pressed = false; released = false; consumed = false;
-        synchronized (inputLock) {
+        inputLock.lock();
+        try {
             if (pendingDown) {
                 downX = pendDownX; downY = pendDownY;
                 px = pendDownX; py = pendDownY;
@@ -37,6 +39,8 @@ public class Ui {
                 released = true;
                 pendingUp = false;
             }
+        } finally {
+            inputLock.unlock();
         }
         if (down) downTime += dt;
     }
@@ -46,23 +50,32 @@ public class Ui {
     }
 
     public void pointerMove(float x, float y) {
-        synchronized (inputLock) {
+        inputLock.lock();
+        try {
             px = x; py = y;
+        } finally {
+            inputLock.unlock();
         }
     }
 
     public void pointerDown(float x, float y, boolean sec) {
-        synchronized (inputLock) {
+        inputLock.lock();
+        try {
             pendDownX = x; pendDownY = y;
             pendingDown = true;
             secondary = sec;
+        } finally {
+            inputLock.unlock();
         }
     }
 
     public void pointerUp(float x, float y) {
-        synchronized (inputLock) {
+        inputLock.lock();
+        try {
             pendUpX = x; pendUpY = y;
             pendingUp = true;
+        } finally {
+            inputLock.unlock();
         }
     }
 
