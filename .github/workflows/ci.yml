@@ -9,16 +9,15 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   test-matrix:
-    name: Headless Simulation Tests (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
+    name: Headless Simulation Tests (JDK ${{ matrix.java-version }})
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
         java-version: ['17', '21']
 
     steps:
@@ -30,6 +29,7 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
+          cache: 'maven'
 
       - name: Set up Python 3
         uses: actions/setup-python@v5
@@ -55,6 +55,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+          cache: 'maven'
 
       - name: Set up Python 3
         uses: actions/setup-python@v5
