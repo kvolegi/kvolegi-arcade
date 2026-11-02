@@ -42,9 +42,9 @@ graph TD
 
     subgraph "Headless Test Harness (tests/)"
         TEST[Headless Simulation Harness<br/>ArcadeTestSuite.java]
-        MOCK[Headless MockGfx]
+        HG[HeadlessRecordingGfx]
         TEST -->|Simulates Ticks| G
-        MOCK -->|Implements| GP
+        HG -->|Implements| GP
     end
 ```
 
