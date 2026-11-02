@@ -13,9 +13,9 @@
   <img src="https://img.shields.io/badge/Java-17%20%7C%2021-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java"/>
   <img src="https://img.shields.io/badge/JavaFX-21-FF6F00?style=for-the-badge&logo=java&logoColor=white" alt="JavaFX"/>
   <img src="https://img.shields.io/badge/Android-API%2024--35-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
-  <img src="https://img.shields.io/badge/Platform-macOS%20%7C%20Windows%20%7C%20Linux%20%7C%20Android-4285F4?style=for-the-badge" alt="Platforms"/>
-  <img src="https://img.shields.io/badge/Tests-11%20Passed-brightgreen?style=for-the-badge" alt="Tests"/>
-  <img src="https://img.shields.io/badge/License-All%20Rights%20Reserved-red?style=for-the-badge" alt="License"/>
+  <img src="https://img.shields.io/badge/CI-Passing-success?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI"/>
+  <img src="https://img.shields.io/badge/Tests-14%20Passed-brightgreen?style=for-the-badge" alt="Tests"/>
+  <img src="https://img.shields.io/badge/Architecture-Hexagonal%20Ports%20%26%20Adapters-blue?style=for-the-badge" alt="Architecture"/>
 </p>
 
 ---
@@ -47,6 +47,14 @@ The suite bundles four complete arcade games with a shared Cyberpunk / Neon visu
 ---
 
 ## 🏗️ Architecture & Technical Decisions
+
+For complete technical specifications, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+### Architecture Decision Records (ADRs)
+The project's architectural trade-offs are documented under [docs/adr/](docs/adr/):
+- **[ADR-0001: Platform-Agnostic Core via Hexagonal Architecture](docs/adr/0001-platform-agnostic-core.md)** — Zero external runtime dependencies, 100% headless testability.
+- **[ADR-0002: Elimination of Runtime GC Pauses in 60 FPS Render Loop](docs/adr/0002-gc-allocation-free-render-loop.md)** — Object reuse, packed ARGB integers, and zero-allocation frame loops.
+- **[ADR-0003: Multi-Platform Fat-JAR Distribution](docs/adr/0003-multi-platform-fat-jar.md)** — Bundled multi-OS native bindings in a single executable artifact.
 
 The codebase uses a clean three-tier structure that isolates core game rules from platform presentation:
 

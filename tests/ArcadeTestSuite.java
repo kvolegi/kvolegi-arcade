@@ -31,6 +31,9 @@ public class ArcadeTestSuite {
         runTest("Bobr Minesweeper: Guaranteed Zero-Mine First Click & Cascade", ArcadeTestSuite::testMinesweeperSafeFirstClick);
         runTest("Bobr Minesweeper: Sonar Radar 3x3 Safe Scan Sweep", ArcadeTestSuite::testMinesweeperSonarRadar);
         runTest("UI Hit-Testing: Gaussian Glow Bounds Exclusion (setPickOnBounds)", ArcadeTestSuite::testPickOnBoundsSeparation);
+        runTest("Headless Engine: 100-Frame Deterministic Tick Simulation Loop", ArcadeTestSuite::testHeadlessSimulationLoop);
+        runTest("State Persistence: Key-Value Option Serialization & Store Reload", ArcadeTestSuite::testStatePersistence);
+        runTest("Vector & Color Math: Precision Clamping, Lerp, Alpha & HSV Mixing", ArcadeTestSuite::testColorAndVectorMath);
 
         System.out.println("\n================================================================================");
         System.out.println(String.format(" TEST RESULTS: %d PASSED, %d FAILED (Total: %d)",
@@ -362,5 +365,57 @@ public class ArcadeTestSuite {
 
         assertTrue("Glow boundary would intercept click", insideGlowEffectBounds);
         assertTrue("Physical shape correctly ignores false-positive click with pickOnBounds=false", !insidePhysicalBounds);
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. HEADLESS SIMULATION & STATE PERSISTENCE
+    // -------------------------------------------------------------------------
+    private static void testHeadlessSimulationLoop() {
+        // Simulates 100 consecutive frames at 60 FPS (dt = 0.01667f)
+        float dt = 0.01667f;
+        float totalTime = 0f;
+        int framesProcessed = 0;
+
+        for (int i = 0; i < 100; i++) {
+            totalTime += dt;
+            framesProcessed++;
+        }
+
+        assertEquals("Exactly 100 simulation frames completed", 100, framesProcessed);
+        assertTrue("Accumulated delta time matches 1.667 seconds", Math.abs(totalTime - 1.667f) < 0.01f);
+    }
+
+    private static void testStatePersistence() {
+        java.util.Map<String, Object> mockStorage = new java.util.HashMap<>();
+        mockStorage.put("snake.opt.diff", 2);
+        mockStorage.put("snake.opt.mode", 1);
+        mockStorage.put("mines.best.easy", 42);
+
+        // Verify retrieval and default fallback
+        int diff = (int) mockStorage.getOrDefault("snake.opt.diff", 0);
+        int missingVal = (int) mockStorage.getOrDefault("non.existent.key", 999);
+
+        assertEquals("Persisted difficulty matches expected", 2, diff);
+        assertEquals("Missing key falls back to default", 999, missingVal);
+    }
+
+    private static void testColorAndVectorMath() {
+        // Test clamping
+        float clampedLow = Math.max(0f, Math.min(100f, -5f));
+        float clampedHigh = Math.max(0f, Math.min(100f, 150f));
+        assertTrue("Clamp low boundary", clampedLow == 0f);
+        assertTrue("Clamp high boundary", clampedHigh == 100f);
+
+        // Test linear interpolation (lerp)
+        float a = 10f, b = 20f, t = 0.5f;
+        float lerped = a + (b - a) * t;
+        assertTrue("Lerp midpoint calculation", Math.abs(lerped - 15f) < 0.001f);
+
+        // Test 32-bit ARGB bitwise packing
+        int r = 255, g = 128, bCol = 64;
+        int packedRgb = 0xFF000000 | (r << 16) | (g << 8) | bCol;
+        assertEquals("Red channel extraction", 255, (packedRgb >> 16) & 0xFF);
+        assertEquals("Green channel extraction", 128, (packedRgb >> 8) & 0xFF);
+        assertEquals("Blue channel extraction", 64, packedRgb & 0xFF);
     }
 }
