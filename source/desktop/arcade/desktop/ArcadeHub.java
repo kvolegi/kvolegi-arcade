@@ -58,7 +58,7 @@ public class ArcadeHub {
         centerBox.setPickOnBounds(false);
         centerBox.setViewOrder(0);
 
-        // 1. Logo Box: "kvolegi" (black fill, NO white stroke) + "arcade"
+        // 1. Logo Box: Comic Sans MS "kvolegi" (black fill, NO white stroke) + "arcade"
         javafx.scene.Node logoBox = GlowHelper.createArcadeLogo();
 
         // 2. Wide game buttons with concise English names

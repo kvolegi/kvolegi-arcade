@@ -661,11 +661,11 @@ public class TicTacToeView {
         settingsRoot.setAlignment(Pos.CENTER);
         settingsRoot.setStyle("-fx-background-color: black; -fx-padding: 30;");
 
-        String baseToggleStyle = "-fx-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -fx-font-size: 15px; -fx-font-weight: bold; " +
+        String baseToggleStyle = "-fx-font-family: 'Comic Sans MS'; -fx-font-size: 15px; -fx-font-weight: bold; " +
                 "-fx-background-color: black; -fx-text-fill: #94a3b8; " +
                 "-fx-border-color: #334155; -fx-border-width: 2px; -fx-border-radius: 2px; -fx-background-radius: 2px; -fx-padding: 10 24; -fx-cursor: hand;";
 
-        String selectedToggleStyle = "-fx-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -fx-font-size: 15px; -fx-font-weight: bold; " +
+        String selectedToggleStyle = "-fx-font-family: 'Comic Sans MS'; -fx-font-size: 15px; -fx-font-weight: bold; " +
                 "-fx-background-color: black; -fx-text-fill: white; " +
                 "-fx-border-color: white; -fx-border-width: 2px; -fx-border-radius: 2px; -fx-background-radius: 2px; -fx-padding: 10 24; " +
                 "-fx-effect: dropshadow(gaussian, white, 12, 0.45, 0, 0); -fx-cursor: hand;";
