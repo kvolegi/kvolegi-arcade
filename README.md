@@ -5,17 +5,18 @@
 </p>
 
 <p align="center">
-  <strong>Cross-Platform Retro-Neon Arcade Game Suite</strong><br>
-  <em>Built by <strong>@kvolegi</strong> • 2023 – 2024</em>
+  <strong>Cross-Platform Retro-Neon Arcade Suite & Custom 2D Engine</strong><br>
+  <em>Engineered from scratch with Zero Third-Party Engine Dependencies (No LibGDX / No Unity) • <strong>@kvolegi</strong></em>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Java-17%20%7C%2021-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java"/>
+  <img src="https://img.shields.io/badge/Custom%20Engine-Zero%20Dependencies%20(No%20LibGDX)-blueviolet?style=for-the-badge" alt="Custom Engine"/>
+  <img src="https://img.shields.io/badge/Architecture-Hexagonal%20Ports%20%26%20Adapters-blue?style=for-the-badge" alt="Architecture"/>
   <img src="https://img.shields.io/badge/JavaFX-21-FF6F00?style=for-the-badge&logo=java&logoColor=white" alt="JavaFX"/>
   <img src="https://img.shields.io/badge/Android-API%2024--35-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
   <img src="https://img.shields.io/badge/CI-Passing-success?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI"/>
-  <img src="https://img.shields.io/badge/Tests-15%20Passed-brightgreen?style=for-the-badge" alt="Tests"/>
-  <img src="https://img.shields.io/badge/Architecture-Hexagonal%20Ports%20%26%20Adapters-blue?style=for-the-badge" alt="Architecture"/>
+  <img src="https://img.shields.io/badge/Tests-11%20Passed-brightgreen?style=for-the-badge" alt="Tests"/>
 </p>
 
 ---
