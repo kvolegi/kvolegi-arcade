@@ -47,7 +47,7 @@ public class Slots extends Game {
     static final double FACTOR = 1.0;
     private static final String[] NAMES = {"vinograd", "arbuz", "lemon", "ananas", "sliva", "df", "banana", "BIGBANANA", "BIGWIN"};
 
-    static class Win { int line, sym, count; double amount; }
+    public static class Win { public int line, sym, count; public double amount; }
 
     private final Opt oSpeed;
     private final Random rnd = new Random();
@@ -90,6 +90,14 @@ public class Slots extends Game {
     @Override public String bestText() { return "balance " + store.getInt("slots.bal", 1000) + "  \u2022  top win " + store.getInt("slots.big", 0); }
     @Override public void icon(Gfx g, float cx, float cy, float size) { Art.slotsIcon(g, ui, cx, cy, size); }
 
+    public long getBalance() { return balance; }
+    public void setBalance(long b) { this.balance = b; }
+    public int getCurrentBet() { return currentBet; }
+    public void setCurrentBet(int b) { this.currentBet = b; }
+    public int getSpins() { return spins; }
+    public int getFreeSpins() { return freeSpins; }
+    public int getState() { return state; }
+
     private int level() { return 1 + spins / 25; }
     private int bet() { return Math.max(1, currentBet); }
 
@@ -105,7 +113,7 @@ public class Slots extends Game {
     private void saveState() { store.putInt("slots.bal", (int) Math.min(Integer.MAX_VALUE, balance)); store.putInt("slots.spins", spins); store.putInt("slots.custom_bet", currentBet); }
 
     // ------------------------------------------------------------------ maths
-    static int weighted(Random r) {
+    public static int weighted(Random r) {
         int t = 0; for (int w : WEIGHT) t += w;
         int x = r.nextInt(t);
         for (int i = 0; i < NSYM; i++) { x -= WEIGHT[i]; if (x < 0) return i; }
@@ -120,7 +128,7 @@ public class Slots extends Game {
         return weighted(rr);
     }
 
-    static List<Win> evaluate(int[][] g, double bet, int[] scatterCount) {
+    public static List<Win> evaluate(int[][] g, double bet, int[] scatterCount) {
         List<Win> out = new ArrayList<>();
         for (int li = 0; li < LINES.length; li++) {
             int[] L = LINES[li];
@@ -143,8 +151,8 @@ public class Slots extends Game {
         return out;
     }
 
-    static double scatterPay(int sc) { return sc >= 5 ? 20 : sc == 4 ? 5 : sc == 3 ? 1.5 : 0; }
-    static int scatterSpins(int sc) { return sc >= 5 ? 15 : sc == 4 ? 12 : sc == 3 ? 8 : 0; }
+    public static double scatterPay(int sc) { return sc >= 5 ? 20 : sc == 4 ? 5 : sc == 3 ? 1.5 : 0; }
+    public static int scatterSpins(int sc) { return sc >= 5 ? 15 : sc == 4 ? 12 : sc == 3 ? 8 : 0; }
 
     /** Monte-Carlo return-to-player used to tune the pay table (not used at runtime). */
     public static double simulate(int n) {

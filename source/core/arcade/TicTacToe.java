@@ -138,6 +138,14 @@ public class TicTacToe extends Game {
 
     public boolean isEnded() { return ended; }
     public int getWinner() { return winner; }
+    public int getTurn() { return turn; }
+    public int getBoardSize() { return n; }
+    public int getCell(int r, int c) { return (r >= 0 && r < n && c >= 0 && c < n) ? b[r][c] : -1; }
+    public void clickCell(int r, int c) { if (!ended && r >= 0 && r < n && c >= 0 && c < n && b[r][c] == 0) place(r, c); }
+    public int getScoreX() { return scoreX; }
+    public int getScoreO() { return scoreO; }
+    public int getWinsX() { return winsX; }
+    public int getWinsO() { return winsO; }
     public boolean checkWin(int[][] board, int r, int c, int player, int winLen) {
         return winsAt(board, r, c, player, winLen, null);
     }

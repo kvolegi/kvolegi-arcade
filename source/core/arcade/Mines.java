@@ -112,6 +112,13 @@ public class Mines extends Game {
     public boolean isWon() { return won; }
     public int getOpened() { return opened; }
     public void clickCell(int r, int c) { reveal(r, c); }
+    public void flagCell(int r, int c) { toggleFlag(r, c); }
+    public boolean isFlagged(int r, int c) { return (r >= 0 && r < rows && c >= 0 && c < cols) && flag[r][c]; }
+    public boolean isCellOpen(int r, int c) { return (r >= 0 && r < rows && c >= 0 && c < cols) && open[r][c]; }
+    public int getRows() { return rows; }
+    public int getCols() { return cols; }
+    public int getTotalBeavers() { return mines; }
+    public void chordCell(int r, int c) { chord(r, c); }
 
     private void win() {
         won = true; endT = 0;

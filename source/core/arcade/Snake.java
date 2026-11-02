@@ -181,6 +181,9 @@ public class Snake extends Game {
     public int getBodyLength() { return body.size(); }
     public void setDirection(char d) { queue(d); }
     public void pressStart() { waiting = false; }
+    public boolean isPaused() { return paused; }
+    public void setPaused(boolean p) { this.paused = p; }
+    public boolean isWaiting() { return waiting; }
 
     private void update(float dt) {
         for (int i = parts.size() - 1; i >= 0; i--) {
