@@ -25,11 +25,11 @@ graph TD
     end
 
     subgraph "Desktop Adapter (source/desktop)"
-        JFX[JavaFX Canvas Renderer<br/>ArcadeHub & Views]
+        JFX[JavaFX Canvas Renderer<br/>JavaFxGfx & CoreGameCanvasView]
         DFS[Preferences File Store<br/>Java Preferences API]
-        JFX -->|Implements| GP
-        JFX -->|Implements| UP
-        DFS -->|Implements| S
+        JFX -->|Implements Gfx| GP
+        JFX -->|Implements Ui| UP
+        DFS -->|Implements Store| S
     end
 
     subgraph "Android Adapter (source/android)"

@@ -36,7 +36,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run Headless Arcade Test Suite
+      - name: Run Maven Build & Domain Engine Tests
+        run: mvn test --batch-mode
+
+      - name: Run Headless Arcade Test Suite (Python Runner)
         run: python3 tests/run_tests.py
 
   package-universal-jar:
