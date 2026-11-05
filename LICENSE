@@ -1,25 +1,18 @@
-Copyright (c) 2023-2024 kvolegi (@kvolegi). All Rights Reserved.
+ALL RIGHTS RESERVED — PRIVATE RESUME & PORTFOLIO ARCHIVE ONLY
 
-PROPRIETARY AND CONFIDENTIAL SOFTWARE LICENSE
+Copyright (c) 2023–2026 kvolegi (@kvolegi). All Rights Reserved.
 
-1. Grant of License:
-   Permission is hereby granted to view, test, and evaluate this software for non-commercial,
-   educational, and portfolio evaluation purposes only.
+STRICT PROHIBITION OF USE, COPYING, REDISTRIBUTION, AND MODIFICATION
 
-2. Restrictions:
-   - Redistribution, sublicensing, modification, reverse engineering, decompilation,
-     or public re-hosting of the source code or binary files in whole or in part is
-     strictly prohibited without prior written consent from the author (@kvolegi).
-   - Commercial exploitation, resale, monetization, or incorporation into other proprietary
-     or commercial software is strictly forbidden.
+This software repository, including all custom engine source code, game logic, assets, binary packages, scripts, and documentation, is published solely as a personal portfolio archive and for evaluation purposes (code review, technical assessment, employment consideration).
 
-3. Attribution:
-   All copies, presentations, screenshots, and evaluations of this project must prominently
-   retain and display the author watermark and copyright notice:
-   "Developed by kvolegi (@kvolegi) | 2023-2024"
+NO PERMISSION IS GRANTED TO ANY PERSON OR ENTITY TO:
+1. USE OR OPERATE: Deploy, run, host, or execute this software or game engine for any commercial or public service without explicit written permission from the Author.
+2. COPY OR REDISTRIBUTE: Copy, mirror, fork, redistribute, disseminate, or republish this software or any part thereof in any public or private repository, forum, website, app store, or storage medium.
+3. MODIFY OR CREATE DERIVATIVES: Modify, adapt, patch, translate, reverse engineer, decompile, or create derivative works based upon this software or its game mechanics.
+4. COMMERCIAL EXPLOITATION: Sublicense, sell, rent, monetize, or package this software or any part of it with any product or game bundle.
 
-4. Warranty Disclaimer:
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-   INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-   PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES
-   OR OTHER LIABILITY ARISING FROM THE USE OF THIS SOFTWARE.
+THIS CODEBASE IS STRICTLY PRIVATE INTELLECTUAL PROPERTY PRESERVED FOR MEMORY AND RESUME DEMONSTRATION.
+
+DISCLAIMER OF WARRANTY:
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE.

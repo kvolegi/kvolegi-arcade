@@ -19,6 +19,15 @@
   <img src="https://img.shields.io/badge/Tests-75%20Passed-brightgreen?style=for-the-badge" alt="Tests"/>
 </p>
 
+<p align="center">
+  <a href="https://kvolegi.github.io/kvolegi-arcade/">
+    <img src="https://img.shields.io/badge/🎮%20Web%20Portal-Play%20Online%20in%20Browser-00f3ff?style=for-the-badge&logo=googlechrome&logoColor=black" alt="Play Online in Browser" />
+  </a>
+  <a href="https://github.com/kvolegi/kvolegi-arcade/releases/tag/v2.1.0">
+    <img src="https://img.shields.io/badge/Release-v2.1.0-blue?style=for-the-badge&logo=github&logoColor=white" alt="Latest Release" />
+  </a>
+</p>
+
 ---
 
 ## About the Project
@@ -39,9 +48,9 @@ The suite bundles four complete arcade games with a shared Cyberpunk / Neon visu
 
 | Desktop Edition (macOS / Linux / Windows) | Mobile Edition (Android APK) |
 | :---: | :---: |
-| ![PC Arcade Hub](docs/screenshots/pc_arcade_hub.png) <br> *Main Arcade Hub (Red JavaFX Bloom)* | ![Mobile Arcade Hub](docs/screenshots/mobile_arcade_hub.png) <br> *Main Menu (Cyan Native Android Glow)* |
-| ![PC Tic Tac Toe](docs/screenshots/pc_ttt_board.png) <br> *Adaptive Grid (5x5 → 7x7 → 10x10, Green Bloom)* | ![Mobile Tic Tac Toe](docs/screenshots/mobile_ttt_board.png) <br> *Infinite Memory Board (Purple Neon, Victory State)* |
-| ![PC Sigma Slots](docs/screenshots/pc_slots_game.png) <br> *20-Line Vegas Slots (JavaFX)* | ![Mobile Sigma Slots](docs/screenshots/mobile_slots_game.png) <br> *20-Line Vegas Slots (Synchronized Rainbow Controls)* |
+| ![PC Arcade Hub](docs/screenshots/pc_arcade_hub.png) <br> *Main Arcade Hub (Red JavaFX Bloom)* | ![Mobile Arcade Hub](docs/screenshots/mobile_arcade_hub.png) <br> *Main Arcade Hub (Teal Native Android Glow)* |
+| ![PC Tic Tac Toe](docs/screenshots/pc_ttt_board.png) <br> *Adaptive Grid (5x5 → 7x7 → 10x10, Green Bloom)* | ![Mobile Tic Tac Toe](docs/screenshots/mobile_ttt_board.png) <br> *Active Gameplay Grid (Crimson Neon, Zero-Overlay Board)* |
+| ![PC Sigma Slots](docs/screenshots/pc_slots_game.png) <br> *20-Line Vegas Slots (JavaFX)* | ![Mobile Sigma Slots](docs/screenshots/mobile_slots_game.png) <br> *20-Line Vegas Slots (Native Android Layout)* |
 | ![PC Pay Table](docs/screenshots/pc_slots_paytable.png) <br> *High-Res Vegas Pay Table Modal (JavaFX)* | ![Mobile Audio Settings](docs/screenshots/mobile_settings.png) <br> *Dynamic Audio & Sound Settings (Android)* |
 | ![PC Beer Snake](docs/screenshots/pc_snake_game.png) <br> *Beer Snake Game Loop (JavaFX)* | ![Mobile Beer Snake](docs/screenshots/mobile_snake_game.png) <br> *Beer Snake Level 2 (Blue Neon & Pre-Game Setup)* |
 | ![PC Minesweeper](docs/screenshots/pc_mines_game.png) <br> *Bobr Minesweeper with Sonar & Flags (JavaFX)* | ![Mobile Minesweeper](docs/screenshots/mobile_mines_game.png) <br> *Bobr Minesweeper (Amber Neon & Pre-Game Setup)* |
@@ -229,11 +238,9 @@ mvn test
 
 ---
 
-## ⚖️ License & Copyright
+## ⚖️ License & Private Archive Terms
 
-```
-kvolegi arcade — Multiplatform Retro-Neon Arcade Suite
-Copyright (c) 2023-2024 kvolegi (@kvolegi). All Rights Reserved.
-```
+Strictly private personal portfolio archive. No permission is granted to copy, run, distribute, modify, or commercially exploit this software. Published solely for technical assessment, code review, and portfolio evaluation.
 
-Personal portfolio project. Provided for evaluation, educational demonstration, and code review.
+Copyright (c) 2023–2026 **kvolegi** (@kvolegi). All Rights Reserved.  
+For full legal terms, see [LICENSE](LICENSE).
