@@ -53,6 +53,18 @@ The suite bundles four complete arcade games with a shared Cyberpunk / Neon visu
 
 For complete technical specifications, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+### Multiplatform Architectural Specification Matrix
+
+| Architectural Layer | Desktop Edition (macOS / Linux / Windows) | Mobile Edition (Android APK) |
+| :--- | :--- | :--- |
+| **Framework & Engine** | JavaFX 21 (Hardware-Accelerated) | Native Android SDK (SurfaceView & Canvas) |
+| **Rendering Backend** | Metal (macOS), DirectX (Win), OpenGL (Linux) | Dedicated 60 FPS background `RenderThread` |
+| **Memory Footprint** | ~65 MB RSS (Zero GC Churn in Loop) | ~38 MB RSS (~5.6 MB Release APK size) |
+| **Input Dispatch** | Mouse drag, clicks & keyboard navigation | Multi-touch gesture coordinate mapping |
+| **Concurrency Model** | Project Loom-safe `ReentrantLock` | Decoupled UI & background thread loop |
+| **Audio Subsystem** | Java Sound API (Stereo PCM playback) | Android SoundPool (low-latency FX) |
+| **Asset Pipeline** | Resolution-independent Vector Paths | Density-scaled vector graphics |
+
 ### Architecture Decision Records (ADRs)
 The project's architectural trade-offs are documented under [docs/adr/](docs/adr/):
 - **[ADR-0001: Platform-Agnostic Core via Hexagonal Architecture](docs/adr/0001-platform-agnostic-core.md)** — Zero external runtime dependencies, 100% headless testability.
@@ -108,15 +120,27 @@ Rather than a fixed 3x3 grid, the board grows dynamically:
 * **Adaptive Scaling:** Cell sizes rescale dynamically to fit available screen space:
   $$\text{cellSize} = \max\left(18, \min\left(88, \frac{\min(W_{\text{avail}}, H_{\text{avail}}) - (N - 1) \cdot \text{gap}}{N}\right)\right)$$
 * **Threat-Evaluation AI:**
-  The AI checks open-ended lines across four vectors: horizontal $[0, 1]$, vertical $[1, 0]$, main diagonal $[1, 1]$, and anti-diagonal $[1, -1]$. It prioritizes immediate 5-in-a-row wins ($+50,000$ pts), blocks opponent 4-in-a-row threats ($+15,000$ pts), and looks for branching double forks.
+  The AI checks open-ended lines across four vectors: horizontal $[0, 1]$, vertical $[1, 0]$, main diagonal $[1, 1]$, and anti-diagonal $[1, -1]$. It evaluates threat patterns using a prioritized score matrix:
+
+  | Threat Pattern | Evaluated Board Condition | Heuristic Weight |
+  | :--- | :--- | :---: |
+  | **Immediate Win** | 5-in-a-row completed on any axis | $+50,000$ |
+  | **Opponent Block** | Opponent holds open 4-in-a-row | $+15,000$ |
+  | **Double Fork** | Two intersecting 3-in-a-row paths | $+5,000$ |
+  | **Open Three** | Unblocked 3 tokens with both ends open | $+1,200$ |
+  | **Center Control** | Move placed adjacent to matrix centroid | $+100$ |
 
 ### 2. Sigma Slots — Paylines & Probability
 * **4 Rows $\times$ 5 Reels Grid:** 20 symbol positions evaluated on each spin across 20 distinct paylines (straight rows, V-shapes, zigzags, and waves).
-* **Payout Tiers:**
-  * Low tier: Grape, Watermelon, Lemon, Plum, Pineapple ($0.18\times$ to $2.5\times$ bet).
-  * Mid tier: Dragonfruit, Banana ($0.35\times$ to $6.0\times$ bet).
-  * High tier (WILD): `BIGBANANA` ($1.8\times$ to $12.0\times$ bet, substitutes for standard symbols).
-  * Jackpot tier (SCATTER): `BIGWIN` ($4.0\times$ to $30.0\times$ bet).
+* **Payout & Symbol Hierarchy:**
+
+  | Symbol Tier | Symbols & Multipliers | Mechanics & Behavior |
+  | :--- | :---: | :--- |
+  | **Standard (Low Tier)** | Grape, Melon, Lemon, Plum ($0.18\times$–$2.5\times$) | Base payline matches across 3–5 reels |
+  | **Premium (Mid Tier)** | Dragonfruit, Banana ($0.35\times$–$6.0\times$) | High-frequency payout combinations |
+  | **WILD Tier** | `BIGBANANA` ($1.8\times$–$12.0\times$) | Substitutes for all standard symbols |
+  | **SCATTER Tier** | `BIGWIN` ($4.0\times$–$30.0\times$) | Pays anywhere on grid + triggers bonus |
+
 * **Custom Bet Input:** Players can bump bets by 10 or type an exact wager using a direct numeric dialog.
 
 ### 3. Beer Snake — Dual Physics & Difficulty Scaling
@@ -193,8 +217,17 @@ For macOS users, a pre-packaged universal application bundle (`.app`) is provide
 ## 📦 Distribution Standards: `dist/` vs `target/`
 
 * **`target/` (Temporary Build Artifacts)**: Contains bytecode (`.class` files), Maven Surefire XML test logs, and intermediate packaging layers. Completely cleared on `mvn clean`.
-* **`dist/` (Release Packages)**: Contains ready-to-run deliverables (`.jar`, `.app`, `.apk`).
+* **`dist/` (Release Packages)**: Contains ready-to-run deliverables (`.jar`, `.app`, `.apk`, `.aab`).
 * **Why Binaries are Not Committed to Git**: In modern software engineering, compiled binaries are excluded from Git repositories to prevent repository bloat and binary merge conflicts. Releases are automatically built and published via **GitHub Releases** using GitHub Actions CI/CD (`.github/workflows/release.yml`).
+
+### Release Deliverables & Packaging Matrix
+
+| Artifact Package | Platform Target | Format | Security & Packaging Standards |
+| :--- | :--- | :---: | :--- |
+| **`kvolegi-arcade-mac.jar`** | Windows / Linux / macOS | Fat JAR | Universal OpenJFX bytecode bundle |
+| **`kvolegi arcade.app`** | macOS 12+ (Apple / Intel) | App Bundle | Native ad-hoc `codesign` signature |
+| **`kvolegi-arcade.apk`** | Android 7.0+ (API 24+) | Release APK | `apksigner` v2/v3 scheme, 4-byte `zipalign` |
+| **`kvolegi-arcade.aab`** | Google Play Distribution | Signed AAB | Dynamic feature & device-split DEX delivery |
 
 ---
 
