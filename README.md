@@ -40,8 +40,8 @@ The suite bundles four complete arcade games with a shared Cyberpunk / Neon visu
 
 | Desktop Edition (macOS / Linux / Windows) | Mobile Edition (Android APK) |
 | :---: | :---: |
-| ![PC Arcade Hub](docs/screenshots/pc_arcade_hub.png) <br> *Main Arcade Hub (Red JavaFX Bloom)* | ![Mobile Tic Tac Toe Menu](docs/screenshots/mobile_arcade_hub.png) <br> *Tic Tac Toe Menu (Blue/Violet Native Android Glow)* |
-| ![PC Tic Tac Toe](docs/screenshots/pc_ttt_board.png) <br> *Adaptive Grid (5x5 → 7x7 → 10x10, Emerald Bloom)* | ![Mobile Tic Tac Toe](docs/screenshots/mobile_ttt_board.png) <br> *Tactical Grid (Amber/Gold Neon, Victory State)* |
+| ![PC Arcade Hub](docs/screenshots/pc_arcade_hub.png) <br> *Main Arcade Hub (Red JavaFX Bloom)* | ![Mobile Arcade Hub](docs/screenshots/mobile_arcade_hub.png) <br> *Main Arcade Hub (Electric Cyan Android Glow)* |
+| ![PC Tic Tac Toe](docs/screenshots/pc_ttt_board.png) <br> *Adaptive Grid (5x5 → 7x7 → 10x10, Emerald Bloom)* | ![Mobile Tic Tac Toe](docs/screenshots/mobile_ttt_board.png) <br> *Tactical Grid (Magenta Neon, 5-in-a-Row Victory Line)* |
 | ![PC Sigma Slots](docs/screenshots/pc_slots_game.png) <br> *20-Line Vegas Slots (Classic JavaFX Big Win)* | ![Mobile Sigma Slots](docs/screenshots/mobile_slots_game.png) <br> *20-Line Vegas Slots (Dynamic Rainbow Big Win)* |
 | ![PC Pay Table](docs/screenshots/pc_slots_paytable.png) <br> *High-Res Vegas Pay Table Modal (JavaFX)* | ![Mobile Audio Settings](docs/screenshots/mobile_settings.png) <br> *Dynamic Audio & Sound Settings (Android)* |
 | ![PC Beer Snake](docs/screenshots/pc_snake_game.png) <br> *Beer Snake Game Loop (Neon Green JavaFX)* | ![Mobile Beer Snake](docs/screenshots/mobile_snake_game.png) <br> *Beer Snake Level 2 (Ice Blue Neon Android)* |
