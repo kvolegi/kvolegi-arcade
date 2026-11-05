@@ -549,11 +549,18 @@ public class TicTacToeView {
         showWinScreen(res);
     }
 
-    // Exact original board expansion logic (+5 board expansion centered)
+    // Adaptive board expansion logic matching APK pacing (5x5 -> 7x7 -> 10x10 -> +5)
     private void expandBoard() {
         if (!isMoreThanHalfFilled() || boardSize >= 25) return;
 
-        int newSize = boardSize + 5;
+        int newSize;
+        if (boardSize <= 5) {
+            newSize = 7;
+        } else if (boardSize == 7) {
+            newSize = 10;
+        } else {
+            newSize = boardSize + 5;
+        }
         CellState[][] oldBoard = saveCurrentBoardState();
         boardSize = newSize;
 

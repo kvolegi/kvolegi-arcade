@@ -18,6 +18,7 @@ public class Mines extends Game {
     private int sonarCharges = 2;
     private boolean sonarActive = false;
     private boolean showSettings = false;
+    private boolean waiting = true;
 
     public Mines(App app) {
         super(app, "mines", "bobr sweeper", "find the beavers before they eat the broccoli", C.ORANGE);
@@ -33,7 +34,7 @@ public class Mines extends Game {
     private static String fmt(int s) { return (s / 60) + ":" + (s % 60 < 10 ? "0" : "") + (s % 60); }
     @Override public void icon(Gfx g, float cx, float cy, float size) { Art.minesIcon(g, ui, cx, cy, size); }
 
-    @Override public void start() { level = 1; setup(); }
+    @Override public void start() { level = 1; setup(); waiting = true; }
 
     private void setup() {
         if (oMode.sel == 0) {
@@ -137,9 +138,17 @@ public class Mines extends Game {
     public void frame(Gfx g, float dt, float w, float h) {
         Theme th = ui.th;
         String k;
-        while ((k = ui.pollKey()) != null) { if (k.equals("F") || k.equals("SPACE")) flagMode = !flagMode; if (k.equals("R")) setup(); }
+        while ((k = ui.pollKey()) != null) {
+            if (k.equals("ENTER") || k.equals("SPACE")) {
+                if (waiting) { waiting = false; }
+                else flagMode = !flagMode;
+            }
+            if (k.equals("F")) flagMode = !flagMode;
+            if (k.equals("R")) { if (!waiting) setup(); }
+        }
         boolean over = dead || won;
-        if (placed && !over) time += dt;
+        boolean modalActive = waiting || showSettings;
+        if (placed && !over && !modalActive) time += dt;
         if (over) endT += dt;
         for (float[] row : pop) for (int i = 0; i < row.length; i++) row[i] = Math.min(1, row[i] + dt / 0.22f);
 
@@ -157,17 +166,19 @@ public class Mines extends Game {
         g.color(glowCol);
         g.rrectStroke(bx - 4, by - 4, bw + 8, bh + 8, 4.0f, 2.2f);
 
-        if (ui.down && !over && !longFired && ui.downTime > 0.42f) {
-            int lr = (int) ((ui.downY - by) / cs), lc = (int) ((ui.downX - bx) / cs);
-            if (ui.downX >= bx && ui.downY >= by && lr >= 0 && lc >= 0 && lr < rows && lc < cols && ui.hover(bx + lc * cs, by + lr * cs, cs, cs)) {
-                toggleFlag(lr, lc); longFired = true;
+        if (!modalActive) {
+            if (ui.down && !over && !longFired && ui.downTime > 0.42f) {
+                int lr = (int) ((ui.downY - by) / cs), lc = (int) ((ui.downX - bx) / cs);
+                if (ui.downX >= bx && ui.downY >= by && lr >= 0 && lc >= 0 && lr < rows && lc < cols && ui.hover(bx + lc * cs, by + lr * cs, cs, cs)) {
+                    toggleFlag(lr, lc); longFired = true;
+                }
             }
+            if (ui.released) { boolean was = longFired; if (was) { ui.released = false; } longFired = false; }
         }
-        if (ui.released) { boolean was = longFired; if (was) { ui.released = false; } longFired = false; }
 
         for (int r = 0; r < rows; r++) for (int c = 0; c < cols; c++) {
             float x = bx + c * cs, y = by + r * cs, in = Math.max(1.5f, cs * 0.05f);
-            boolean hov = !over && ui.hover(x, y, cs, cs) && !ui.down;
+            boolean hov = !over && !modalActive && ui.hover(x, y, cs, cs) && !ui.down;
             if (open[r][c]) {
                 float a = C.easeOut(Math.max(0, pop[r][c]));
                 g.color(0xFF08090D); // Deep black opened cell
@@ -198,7 +209,7 @@ public class Mines extends Game {
                     Art.beaver(g, x + cs / 2, y + cs / 2, cs * 0.42f * a);
                 }
             }
-            if (!over && !open[r][c] && ui.clicked(x, y, cs, cs)) {
+            if (!over && !modalActive && !open[r][c] && ui.clicked(x, y, cs, cs)) {
                 if (sonarActive) {
                     sonarActive = false;
                     if (sonarCharges > 0) sonarCharges--;
@@ -208,7 +219,7 @@ public class Mines extends Game {
                 } else {
                     reveal(r, c);
                 }
-            } else if (!over && open[r][c] && ui.clicked(x, y, cs, cs)) {
+            } else if (!over && !modalActive && open[r][c] && ui.clicked(x, y, cs, cs)) {
                 if (sonarActive) {
                     sonarActive = false;
                     if (sonarCharges > 0) sonarCharges--;
@@ -217,18 +228,18 @@ public class Mines extends Game {
                     chord(r, c);
                 }
             }
-            if (!over && ui.pressed && ui.secondary && Ui.in(ui.px, ui.py, x, y, cs, cs)) toggleFlag(r, c);
+            if (!over && !modalActive && ui.pressed && ui.secondary && Ui.in(ui.px, ui.py, x, y, cs, cs)) toggleFlag(r, c);
         }
 
         // HUD
         float s = Math.round(48 * scale);
         float padX = Math.round(18 * scale), padY = Math.round(14 * scale);
         if (ui.iconButton(g, Ui.BACK, padX, padY, s, color)) exit();
-        if (ui.iconButton(g, Ui.GEAR, w - s - padX, padY, s, color)) showSettings = !showSettings;
-        if (ui.iconButton(g, Ui.RESTART, w - 2 * s - padX - 8, padY, s, color)) setup();
+        if (!waiting && ui.iconButton(g, Ui.GEAR, w - s - padX, padY, s, color)) showSettings = !showSettings;
+        if (!modalActive && ui.iconButton(g, Ui.RESTART, w - 2 * s - padX - 8, padY, s, color)) setup();
 
         float sonarW = Math.round(112 * scale);
-        if (ui.chip(g, sonarActive ? "SCANNING" : "Sonar (" + sonarCharges + ")", w - 2 * s - padX - sonarW - 16, padY, sonarW, s, sonarActive, C.CYAN)) {
+        if (!modalActive && ui.chip(g, sonarActive ? "SCANNING" : "Sonar (" + sonarCharges + ")", w - 2 * s - padX - sonarW - 16, padY, sonarW, s, sonarActive, C.CYAN)) {
             if (sonarCharges > 0 && !over) sonarActive = !sonarActive;
         }
 
@@ -239,40 +250,85 @@ public class Mines extends Game {
         float tw = Math.min(Math.round(160 * scale), (w - 40) / 2), ty = h - bottomBar + Math.round(8 * scale);
         float chipH = Math.round(46 * scale);
         float tx = w / 2 - tw - 4;
-        if (ui.chip(g, "dig", tx, ty, tw, chipH, !flagMode, color)) flagMode = false;
-        if (ui.chip(g, "broccoli", w / 2 + 4, ty, tw, chipH, flagMode, C.GREEN)) flagMode = true;
+        if (!modalActive) {
+            if (ui.chip(g, "dig", tx, ty, tw, chipH, !flagMode, color)) flagMode = false;
+            if (ui.chip(g, "broccoli", w / 2 + 4, ty, tw, chipH, flagMode, C.GREEN)) flagMode = true;
+        } else {
+            ui.chip(g, "dig", tx, ty, tw, chipH, !flagMode, color);
+            ui.chip(g, "broccoli", w / 2 + 4, ty, tw, chipH, flagMode, C.GREEN);
+        }
         Art.broccoli(g, w / 2 + 4 + Math.round(22 * scale), ty + chipH / 2, Math.round(12 * scale));
 
-        if (showSettings) {
-            float boxW = Math.min(Math.round(440 * scale), w - 40);
-            float boxH = Math.round(210 * scale);
+        if (modalActive) {
+            // Full screen dim backdrop blocking any touches to background
+            g.color(0xB8000000);
+            g.rect(0, 0, w, h);
+
+            float boxW = Math.min(Math.round(500 * scale), w - 24);
+            float chipH2 = Math.max(48f, Math.round(50 * scale));
+            float btnH = Math.max(52f, Math.round(56 * scale));
+            float boxH = Math.round(310 * scale);
             float boxX = (w - boxW) / 2, boxY = (h - boxH) / 2;
-            ui.dropShadowGlow(g, boxX, boxY, boxW, boxH, 4f, glowCol, 1.4f);
+
+            ui.dropShadowGlow(g, boxX, boxY, boxW, boxH, 6f, glowCol, 1.8f);
             g.color(0xFF000000);
-            g.rrect(boxX, boxY, boxW, boxH, 4f);
-            g.color(0xFFFFFFFF);
-            g.rrectStroke(boxX, boxY, boxW, boxH, 4f, 2.0f);
+            g.rrect(boxX, boxY, boxW, boxH, 6f);
+            g.color(glowCol);
+            g.rrectStroke(boxX, boxY, boxW, boxH, 6f, 2.4f);
 
-            ui.label(g, "Minesweeper Settings", boxX + boxW / 2, boxY + Math.round(22 * scale), Math.round(20 * scale), true, Gfx.CENTER, th.fg, boxW);
+            String title = waiting ? "Game Setup" : "Minesweeper Settings";
+            ui.label(g, title, boxX + boxW / 2, boxY + Math.round(24 * scale), Math.max(18, Math.round(22 * scale)), true, Gfx.CENTER, 0xFFFFFFFF, boxW);
 
-            float yDiff = boxY + Math.round(52 * scale);
+            // 1. Mode Toggle (Classic vs Campaign Levels) matching Snake style
+            float chipW = (boxW - 36) / 2;
+            float yMode = boxY + Math.round(50 * scale);
+            if (ui.chip(g, "Classic", boxX + 14, yMode, chipW, chipH2, oMode.sel == 0, glowCol)) {
+                oMode.sel = 0;
+                setup();
+                if (waiting) waiting = true;
+            }
+            if (ui.chip(g, "Campaign Levels", boxX + 14 + chipW + 8, yMode, chipW, chipH2, oMode.sel == 1, glowCol)) {
+                oMode.sel = 1;
+                setup();
+                if (waiting) waiting = true;
+            }
+
+            // 2. Difficulty Chips
+            float yDiff = yMode + chipH2 + Math.round(10 * scale);
             float dChipW = (boxW - 36 - 16) / 3;
-            float chipH2 = Math.round(40 * scale);
             String[] diffs = {"Easy (8x8)", "Med (10x10)", "Hard (12x12)"};
             for (int idx = 0; idx < 3; idx++) {
-                if (ui.chip(g, diffs[idx], boxX + 14 + idx * (dChipW + 8), yDiff, dChipW, chipH2, oDiff.sel == idx, glowCol)) {
+                boolean isSel = (oMode.sel == 0 && oDiff.sel == idx);
+                if (ui.chip(g, diffs[idx], boxX + 14 + idx * (dChipW + 8), yDiff, dChipW, chipH2, isSel, glowCol)) {
                     oDiff.sel = idx;
+                    oMode.sel = 0;
+                    setup();
+                    if (waiting) waiting = true;
                 }
             }
 
-            float startW = (boxW - 36) / 2;
-            float startY = yDiff + chipH2 + Math.round(22 * scale);
-            if (ui.button(g, "Apply & Restart", boxX + 14, startY, startW, Math.round(46 * scale), glowCol)) {
-                showSettings = false;
-                setup();
-            }
-            if (ui.button(g, "Close", boxX + 14 + startW + 8, startY, startW, Math.round(46 * scale), C.PURPLE)) {
-                showSettings = false;
+            // 3. Action Buttons
+            float yBtn = yDiff + chipH2 + Math.round(14 * scale);
+            if (waiting) {
+                float startW = boxW - 28;
+                if (ui.button(g, "START GAME", boxX + 14, yBtn, startW, btnH, glowCol)) {
+                    waiting = false;
+                    showSettings = false;
+                    setup();
+                }
+            } else {
+                float btnW = (boxW - 36) / 2;
+                if (ui.button(g, "Apply & Restart", boxX + 14, yBtn, btnW, btnH, glowCol)) {
+                    showSettings = false;
+                    setup();
+                }
+                if (ui.button(g, "Continue", boxX + 14 + btnW + 8, yBtn, btnW, btnH, C.PURPLE)) {
+                    showSettings = false;
+                    int expectedCols = oMode.sel == 0 ? (oDiff.sel == 0 ? 8 : oDiff.sel == 1 ? 10 : 12) : Math.min(6 + level, 12);
+                    if (cols != expectedCols) {
+                        setup();
+                    }
+                }
             }
         }
 

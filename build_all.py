@@ -141,9 +141,37 @@ def build_desktop():
     app_res = os.path.join(app_bundle, "Contents/Resources")
     os.makedirs(app_res, exist_ok=True)
     shutil.copy2(jar_mac, os.path.join(app_res, "kvolegi-arcade-mac.jar"))
+
+    # Ensure macOS AppIcon.icns is compiled and installed
+    icns_file = os.path.join(ICONS_SRC, "AppIcon.icns")
+    iconset_dir = os.path.join(ICONS_SRC, "AppIcon.iconset")
+    if os.path.exists(iconset_dir) and sys.platform == "darwin":
+        try:
+            subprocess.run(["iconutil", "-c", "icns", iconset_dir, "-o", icns_file], check=True, capture_output=True)
+        except Exception:
+            pass
+    if os.path.exists(icns_file):
+        shutil.copy2(icns_file, os.path.join(app_res, "AppIcon.icns"))
+
+    # Ensure CFBundleIconFile in Info.plist
+    info_plist = os.path.join(app_bundle, "Contents/Info.plist")
+    if os.path.exists(info_plist):
+        try:
+            import plistlib
+            with open(info_plist, "rb") as f:
+                pl = plistlib.load(f)
+            pl["CFBundleIconFile"] = "AppIcon"
+            pl["CFBundleIconName"] = "AppIcon"
+            with open(info_plist, "wb") as f:
+                plistlib.dump(pl, f)
+        except Exception as e:
+            print(f"Notice: plist update: {e}")
+
     if sys.platform == "darwin" and shutil.which("codesign"):
         try:
+            subprocess.run(["xattr", "-cr", app_bundle], check=False, capture_output=True)
             subprocess.run(["codesign", "--force", "--deep", "--sign", "-", app_bundle], check=True, capture_output=True)
+            subprocess.run(["/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister", "-f", app_bundle], check=False, capture_output=True)
             print(f"Signed {app_bundle} with ad-hoc codesign signature.")
         except Exception as e:
             print(f"Warning: codesign failed: {e}")
@@ -216,8 +244,19 @@ def build_desktop():
     subprocess.run(["jar", "cfm", jar_univ, manifest_univ, "-C", classes_univ, "."], check=True)
     print(f"Created Universal Cross-Platform JAR: {jar_univ} ({os.path.getsize(jar_univ):,} bytes)")
 
-    # 3. Windows Native PE32 .exe via Launch4j
-    exe_out = os.path.join(WIN_BUILD, "kvolegi-arcade.exe")
+    dist_dir = os.path.join(ROOT, "dist")
+    os.makedirs(dist_dir, exist_ok=True)
+    shutil.copy2(jar_mac, os.path.join(dist_dir, "kvolegi-arcade-mac.jar"))
+    shutil.copy2(jar_univ, os.path.join(dist_dir, "kvolegi-arcade-universal.jar"))
+    dist_app = os.path.join(dist_dir, "kvolegi arcade.app")
+    if os.path.exists(dist_app):
+        shutil.rmtree(dist_app)
+    shutil.copytree(app_bundle, dist_app)
+    mac_zip = os.path.join(dist_dir, "kvolegi-arcade-macOS.zip")
+    if os.path.exists(mac_zip):
+        os.remove(mac_zip)
+    subprocess.run(["zip", "-r", "-q", mac_zip, "kvolegi arcade.app"], cwd=dist_dir, check=True)
+    print(f"Updated all Desktop artifacts in dist/: {dist_dir}")
     icon_path = "/tmp/app_icon.ico"
     if Image is not None and not os.path.exists(icon_path):
         icon_src = os.path.join(ICONS_SRC, "app_icon_256.png")
@@ -360,10 +399,80 @@ def build_android():
         "--key-pass", "pass:android", "--ks-key-alias", "androiddebugkey",
         "--out", final_apk, aligned_apk
     ], check=True)
+    dist_apk = os.path.join(ROOT, "dist", "kvolegi-arcade.apk")
+    os.makedirs(os.path.join(ROOT, "dist"), exist_ok=True)
+    shutil.copy(final_apk, dist_apk)
     print(f"Created Android Release APK: {final_apk} ({os.path.getsize(final_apk):,} bytes)")
+    print(f"Copied to dist: {dist_apk}")
+
+    # Build Android App Bundle (.aab)
+    try:
+        proto_zip = os.path.join(tmp_build, "proto_res.zip")
+        subprocess.run([
+            aapt2, "link", "--proto-format",
+            "-I", android_jar,
+            "--manifest", os.path.join(ANDROID_SRC, "AndroidManifest.xml"),
+            "-o", proto_zip,
+            "-A", ASSETS_SRC,
+            "--auto-add-overlay",
+            compiled_res
+        ], check=True, capture_output=True)
+
+        base_module = os.path.join(tmp_build, "base_module")
+        if os.path.exists(base_module): shutil.rmtree(base_module)
+        os.makedirs(base_module)
+        subprocess.run(["unzip", "-q", proto_zip, "-d", base_module], check=True)
+
+        manifest_dir = os.path.join(base_module, "manifest")
+        os.makedirs(manifest_dir, exist_ok=True)
+        manifest_file = os.path.join(base_module, "AndroidManifest.xml")
+        if os.path.exists(manifest_file):
+            shutil.move(manifest_file, os.path.join(manifest_dir, "AndroidManifest.xml"))
+
+        dex_target = os.path.join(base_module, "dex")
+        os.makedirs(dex_target, exist_ok=True)
+        shutil.copy2(os.path.join(tmp_build, "dex/classes.dex"), os.path.join(dex_target, "classes.dex"))
+
+        base_zip = os.path.join(tmp_build, "base.zip")
+        subprocess.run(["zip", "-r", "-q", base_zip, "."], cwd=base_module, check=True)
+
+        bundletool_jar = "/tmp/bundletool.jar"
+        if not os.path.exists(bundletool_jar):
+            urllib.request.urlretrieve("https://github.com/google/bundletool/releases/download/1.17.2/bundletool-all-1.17.2.jar", bundletool_jar)
+
+        unsigned_aab = os.path.join(tmp_build, "unsigned.aab")
+        subprocess.run(["java", "-jar", bundletool_jar, "build-bundle", "--modules=" + base_zip, "--output=" + unsigned_aab], check=True, capture_output=True)
+
+        final_aab = os.path.join(APK_BUILD, "kvolegi-arcade.aab")
+        shutil.copy2(unsigned_aab, final_aab)
+        subprocess.run(["jarsigner", "-keystore", keystore, "-storepass", "android", "-keypass", "android", final_aab, "androiddebugkey"], check=True, capture_output=True)
+
+        dist_aab = os.path.join(ROOT, "dist", "kvolegi-arcade.aab")
+        shutil.copy(final_aab, dist_aab)
+        print(f"Created Android App Bundle (.aab): {final_aab} ({os.path.getsize(final_aab):,} bytes)")
+        print(f"Copied to dist: {dist_aab}")
+    except Exception as e:
+        print(f"Notice: AAB packaging: {e}")
 
 if __name__ == "__main__":
     build_desktop()
     if os.path.exists(os.path.expanduser("~/Library/Android/sdk")):
         build_android()
+
+    # Sync to user's root desktop folder '^' if present
+    alt_root = "/Users/mimi/Desktop/^/kvolegi-arcade"
+    if os.path.exists(alt_root):
+        dist_dir = os.path.join(ROOT, "dist")
+        alt_dist = os.path.join(alt_root, "dist")
+        os.makedirs(alt_dist, exist_ok=True)
+        for item in os.listdir(dist_dir):
+            s = os.path.join(dist_dir, item)
+            d = os.path.join(alt_dist, item)
+            if os.path.isdir(s):
+                if os.path.exists(d): shutil.rmtree(d)
+                shutil.copytree(s, d)
+            else:
+                shutil.copy2(s, d)
+        print(f"Synced updated dist artifacts to {alt_dist}")
+
     print("\nALL BUILDS GENERATED SUCCESSFULLY!")

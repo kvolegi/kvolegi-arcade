@@ -1,0 +1,12 @@
+name: "💡 Feature Request"
+description: "Suggest a new mini-game or arcade enhancement"
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: "Feature Concept"
+      description: "Describe the proposed mini-game or mechanic."
+    validations:
+      required: true

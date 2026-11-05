@@ -14,6 +14,13 @@ TESTS_DIR = os.path.join(ROOT, "tests")
 TEST_JAVA = os.path.join(TESTS_DIR, "ArcadeTestSuite.java")
 
 def main():
+    import shutil
+    mvn_path = shutil.which("mvn")
+    if mvn_path:
+        print("Executing kvolegi arcade Complete Automated Test Suite (75 Tests across 6 suites)...")
+        res = subprocess.run([mvn_path, "test"], cwd=ROOT)
+        sys.exit(res.returncode)
+
     os.makedirs(TARGET_DIR, exist_ok=True)
     print("Compiling arcade core and test suite...")
     compile_cmd = [

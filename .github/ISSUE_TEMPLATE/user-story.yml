@@ -1,0 +1,36 @@
+name: "📖 Game Feature User Story"
+description: "Submit an Agile user story for arcade game features or platform ports"
+title: "[Story]: "
+labels: ["user-story", "enhancement"]
+body:
+  - type: textarea
+    id: story
+    attributes:
+      label: "User Story Statement"
+      description: "Format: As a [player/gamer], I want [feature] so that [fun/value]."
+      placeholder: "As a mobile player, I want enlarged touchscreen buttons in Slots so that I don't misclick while spinning."
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "Acceptance Criteria"
+      placeholder: |
+        - [ ] All touch targets scaled to at least 56–72px.
+        - [ ] Rainbow neon glow cycles dynamically without flickering.
+    validations:
+      required: true
+  - type: dropdown
+    id: game
+    attributes:
+      label: "Target Game Module"
+      options:
+        - "Hub / Settings Menu"
+        - "Sigma Slots"
+        - "Neon Snake"
+        - "Minesweeper"
+        - "TicTacToe"
+        - "Android APK Engine"
+        - "Desktop JavaFX Engine"
+    validations:
+      required: true

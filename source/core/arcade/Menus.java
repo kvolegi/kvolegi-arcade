@@ -209,7 +209,7 @@ final class Menus {
         if (ui.chip(g, "Sound ON", x0, y, halfW, chipH, app.soundEnabled, glowCol)) {
             app.setSound(true);
         }
-        if (ui.chip(g, "Sound OFF", x0 + halfW + 12, y, halfW, chipH, !app.soundEnabled, C.RED)) {
+        if (ui.chip(g, "Sound OFF", x0 + halfW + 12, y, halfW, chipH, !app.soundEnabled, glowCol)) {
             app.setSound(false);
         }
         y += Math.round(80 * scale);
@@ -243,6 +243,7 @@ final class Menus {
         Ui ui = app.ui;
         Theme th = ui.th;
         float scale = Math.max(0.95f, Math.min(1.35f, h / 650f));
+        int modalGlow = Art.cyclingRainbow(ui.time);
 
         // Dark dim backdrop
         g.color(0xDC000000);
@@ -254,15 +255,15 @@ final class Menus {
         float my = (h - mh) / 2;
         float r = 4.0f;
 
-        // Neon Yellow Glow & Black Box
-        ui.dropShadowGlow(g, mx, my, mw, mh, r, C.YELLOW, 1.4f);
+        // Synchronized Rainbow Neon Glow & Black Box
+        ui.dropShadowGlow(g, mx, my, mw, mh, r, modalGlow, 1.4f);
         g.color(0xFF000000);
         g.rrect(mx, my, mw, mh, r);
-        g.color(0xFFFFFFFF);
+        g.color(modalGlow);
         g.rrectStroke(mx, my, mw, mh, r, 2.5f);
 
         // Header Title
-        ui.title(g, ":(", mx + mw / 2, my + 38 * scale, Math.min(38 * scale, mw * 0.10f), C.YELLOW);
+        ui.title(g, ":(", mx + mw / 2, my + 38 * scale, Math.min(42 * scale, mw * 0.12f), modalGlow);
 
         // Subtitle / current balance
         int curBal = app.store.getInt("slots.bal", 1000);
@@ -276,7 +277,7 @@ final class Menus {
         float abH = Math.max(48f, Math.round(52 * scale));
         g.color(0xFF0D0D12);
         g.rrect(mx + 20, my + 88 * scale, mw - 40, abH, 2.0f);
-        g.color(ui.neon(0.1f));
+        g.color(modalGlow);
         g.rrectStroke(mx + 20, my + 88 * scale, mw - 40, abH, 2.0f, 2.0f);
         String addStr = "+ " + String.format("%,d", app.addMoneyAmount) + " монет";
         ui.label(g, addStr, mx + mw / 2, my + 112 * scale, Math.max(22, Math.round(26 * scale)), true, Gfx.CENTER, 0xFFFFFFFF, mw - 60);
@@ -287,7 +288,7 @@ final class Menus {
         g.rrect(slX, slY, slW, slH, 2.0f);
 
         float pct = C.clamp(app.addMoneyAmount / 1000000f, 0f, 1f);
-        g.color(th.accent(C.YELLOW));
+        g.color(modalGlow);
         g.rrect(slX, slY, Math.max(8, slW * pct), slH, 2.0f);
 
         float thumbX = slX + slW * pct;
@@ -308,11 +309,11 @@ final class Menus {
         // Large touch-friendly Preset Buttons - Row 1 (4 buttons)
         float yChips1 = my + 196 * scale;
         float cw1 = (mw - 48 - 3 * 10) / 4f;
-        float chipH = Math.max(48f, Math.round(52 * scale));
+        float chipH = Math.max(50f, Math.round(54 * scale));
         int[] row1Vals = {1000, 10000, 50000, 100000};
         String[] row1Labels = {"+1,000", "+10,000", "+50,000", "+100,000"};
         for (int i = 0; i < 4; i++) {
-            if (ui.chip(g, row1Labels[i], slX + i * (cw1 + 10), yChips1, cw1, chipH, false, C.YELLOW)) {
+            if (ui.chip(g, row1Labels[i], slX + i * (cw1 + 10), yChips1, cw1, chipH, false, modalGlow)) {
                 app.addMoneyAmount = Math.min(1000000, app.addMoneyAmount + row1Vals[i]);
             }
         }
@@ -320,21 +321,21 @@ final class Menus {
         // Large touch-friendly Preset Buttons - Row 2 (3 buttons)
         float yChips2 = yChips1 + chipH + Math.round(10 * scale);
         float cw2 = (mw - 48 - 2 * 10) / 3f;
-        if (ui.chip(g, "+500,000", slX, yChips2, cw2, chipH, false, C.YELLOW)) {
+        if (ui.chip(g, "+500,000", slX, yChips2, cw2, chipH, false, modalGlow)) {
             app.addMoneyAmount = Math.min(1000000, app.addMoneyAmount + 500000);
         }
-        if (ui.chip(g, "+1,000,000", slX + cw2 + 10, yChips2, cw2, chipH, false, C.YELLOW)) {
+        if (ui.chip(g, "+1,000,000", slX + cw2 + 10, yChips2, cw2, chipH, false, modalGlow)) {
             app.addMoneyAmount = 1000000;
         }
-        if (ui.chip(g, "MAX (1M)", slX + 2 * (cw2 + 10), yChips2, cw2, chipH, app.addMoneyAmount == 1000000, C.YELLOW)) {
+        if (ui.chip(g, "MAX (1M)", slX + 2 * (cw2 + 10), yChips2, cw2, chipH, app.addMoneyAmount == 1000000, modalGlow)) {
             app.addMoneyAmount = 1000000;
         }
 
         // Action Buttons: Add & Set
         float btnY = yChips2 + chipH + Math.round(14 * scale);
         float btnW = (mw - 48 - 12) / 2;
-        float btnH = Math.max(54f, Math.round(58 * scale));
-        if (drawGreenNeonRectButton(g, ui, "Добавить", slX, btnY, btnW, btnH)) {
+        float btnH = Math.max(56f, Math.round(60 * scale));
+        if (drawNeonRectButton(g, ui, "Добавить", slX, btnY, btnW, btnH, modalGlow)) {
             int newB = Math.min(1000000, curBal + app.addMoneyAmount);
             app.store.putInt("slots.bal", newB);
             if (app.current instanceof Slots) {
@@ -342,7 +343,7 @@ final class Menus {
             }
             app.showMoneyModal = false;
         }
-        if (drawNeonRectButton(g, ui, "Установить", slX + btnW + 12, btnY, btnW, btnH, C.CYAN)) {
+        if (drawNeonRectButton(g, ui, "Установить", slX + btnW + 12, btnY, btnW, btnH, modalGlow)) {
             app.store.putInt("slots.bal", app.addMoneyAmount);
             if (app.current instanceof Slots) {
                 ((Slots) app.current).setBalance(app.addMoneyAmount);
@@ -352,7 +353,7 @@ final class Menus {
 
         // Close Button
         float closeY = btnY + btnH + Math.round(10 * scale);
-        if (drawNeonRectButton(g, ui, "Закрыть", slX, closeY, mw - 48, Math.max(48f, Math.round(50 * scale)), C.PURPLE)) {
+        if (drawNeonRectButton(g, ui, "Закрыть", slX, closeY, mw - 48, Math.max(54f, Math.round(58 * scale)), modalGlow)) {
             app.showMoneyModal = false;
         }
     }

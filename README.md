@@ -16,7 +16,7 @@
   <img src="https://img.shields.io/badge/JavaFX-21-FF6F00?style=for-the-badge&logo=java&logoColor=white" alt="JavaFX"/>
   <img src="https://img.shields.io/badge/Android-API%2024--35-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
   <img src="https://img.shields.io/badge/CI-Passing-success?style=for-the-badge&logo=githubactions&logoColor=white" alt="CI"/>
-  <img src="https://img.shields.io/badge/Tests-11%20Passed-brightgreen?style=for-the-badge" alt="Tests"/>
+  <img src="https://img.shields.io/badge/Tests-75%20Passed-brightgreen?style=for-the-badge" alt="Tests"/>
 </p>
 
 ---
@@ -35,15 +35,16 @@ The suite bundles four complete arcade games with a shared Cyberpunk / Neon visu
 
 ## 📸 Screenshots
 
-### Desktop (JavaFX) vs Mobile (Native Android Canvas)
+### Desktop (JavaFX 21) vs Mobile (Native Android SurfaceView)
 
 | Desktop Edition (macOS / Linux / Windows) | Mobile Edition (Android APK) |
 | :---: | :---: |
-| ![PC Arcade Hub](docs/screenshots/pc_arcade_hub.png) <br> *Main Arcade Hub (JavaFX GPU Bloom)* | ![Mobile Arcade Hub](docs/screenshots/mobile_arcade_hub.png) <br> *Main Arcade Hub (Android Native Surface)* |
-| ![PC Tic Tac Toe](docs/screenshots/pc_ttt_board.png) <br> *Infinite Memory Board (JavaFX)* | ![Mobile Tic Tac Toe](docs/screenshots/mobile_ttt_board.png) <br> *Infinite Memory Board (Android Canvas)* |
-| ![PC Sigma Slots](docs/screenshots/pc_slots_game.png) <br> *20-Line Vegas Slots (JavaFX)* | ![Mobile Sigma Slots](docs/screenshots/mobile_slots_game.png) <br> *20-Line Vegas Slots (Android Surface)* |
-| ![PC Beer Snake](docs/screenshots/pc_snake_game.png) <br> *Beer Snake Game Loop (JavaFX)* | ![Mobile Beer Snake](docs/screenshots/mobile_snake_game.png) <br> *Beer Snake Game Loop (Android Canvas)* |
-| ![PC Minesweeper](docs/screenshots/pc_mines_game.png) <br> *Bobr Minesweeper (JavaFX)* | ![Mobile Minesweeper](docs/screenshots/mobile_mines_game.png) <br> *Bobr Minesweeper (Android Canvas)* |
+| ![PC Arcade Hub](docs/screenshots/pc_arcade_hub.png) <br> *Main Arcade Hub (Red JavaFX Bloom)* | ![Mobile Arcade Hub](docs/screenshots/mobile_arcade_hub.png) <br> *Main Menu (Cyan Native Android Glow)* |
+| ![PC Tic Tac Toe](docs/screenshots/pc_ttt_board.png) <br> *Adaptive Grid (5x5 → 7x7 → 10x10, Green Bloom)* | ![Mobile Tic Tac Toe](docs/screenshots/mobile_ttt_board.png) <br> *Infinite Memory Board (Purple Neon, Victory State)* |
+| ![PC Sigma Slots](docs/screenshots/pc_slots_game.png) <br> *20-Line Vegas Slots (JavaFX)* | ![Mobile Sigma Slots](docs/screenshots/mobile_slots_game.png) <br> *20-Line Vegas Slots (Synchronized Rainbow Controls)* |
+| ![PC Pay Table](docs/screenshots/pc_slots_paytable.png) <br> *High-Res Vegas Pay Table Modal (JavaFX)* | ![Mobile Audio Settings](docs/screenshots/mobile_settings.png) <br> *Dynamic Audio & Sound Settings (Android)* |
+| ![PC Beer Snake](docs/screenshots/pc_snake_game.png) <br> *Beer Snake Game Loop (JavaFX)* | ![Mobile Beer Snake](docs/screenshots/mobile_snake_game.png) <br> *Beer Snake Level 2 (Blue Neon & Pre-Game Setup)* |
+| ![PC Minesweeper](docs/screenshots/pc_mines_game.png) <br> *Bobr Minesweeper with Sonar & Flags (JavaFX)* | ![Mobile Minesweeper](docs/screenshots/mobile_mines_game.png) <br> *Bobr Minesweeper (Amber Neon & Pre-Game Setup)* |
 
 ---
 
@@ -211,25 +212,20 @@ mvn clean package -DskipTests
 
 ## 🧪 Automated Testing
 
-The suite includes an idiomatic **JUnit 5** test suite (`tests/ArcadeDomainTest.java`) integrated directly into Maven Surefire:
+The suite includes an idiomatic **JUnit 5** test suite (75 total tests) integrated directly into Maven Surefire:
 
 ```bash
-# Run canonical JUnit 5 test suite via Maven
+# Run canonical JUnit 5 test suite via Maven (75 tests passing)
 mvn test
-
-# Or run headless simulation runner
-java tests/ArcadeTestSuite.java
 ```
 
-### Test Coverage (11 Distinct Domain Tests):
-* **Matrix Expansion:** $5 \times 5 \to 10 \times 10$ growth at $>50\%$ occupancy, centered coordinate remapping $(\Delta = 2)$.
-* **5-in-a-Row Detection:** Validates victory vectors across horizontal, vertical, and both diagonal directions.
-* **Heuristic AI Evaluation:** Confirms threat weight hierarchy (win $50,000 >$ block $15,000 >$ fork $1,200$).
-* **Slots Payline Alignment:** Full coordinate check across all 20 paylines.
-* **Wild & Scatter Rules:** Substitution logic and multiplier triggers.
-* **Snake Movement Physics:** Toroidal coordinate wrapping and solid wall collision boundaries.
-* **Minesweeper First-Click Guarantee:** Ensures zero mines on the initial click with recursive cascading open.
-* **Hit-Testing Bounds:** Checks `setPickOnBounds(false)` to prevent 50px glow shaders from intercepting clicks on adjacent buttons.
+### Test Coverage (75 Distinct Specification Tests across 6 Suites):
+* **`AppLifecycleAndMathTest` (16 tests):** Screen transition state machine (`MAIN` $\leftrightarrow$ `TTT_MENU` $\leftrightarrow$ `PLAY`), audio volume persistence, safe string sanitization, and mathematical easing/interpolation functions (`C.clamp`, `C.easeOut`, `C.lerp`).
+* **`ArcadeDomainTest` (11 tests):** Core domain integration, headless recording graphics pipeline (`Gfx`), vector icon render loops, in-memory preferences storage, and high-DPI scaling factors.
+* **`TicTacToeEngineTest` (12 tests):** Adaptive matrix expansion ($5 \times 5 \to 7 \times 7 \to 10 \times 10$), Gomoku 5-in-a-row victory detection across all 4 vector axes, heuristic AI minimax threat weights, and turn alternation.
+* **`SnakeEngineTest` (12 tests):** Head/body coordinate tracking, food spawning in non-occupied cells, toroidal screen wrap-around vs. lethal wall collisions, beer drunk control inversion, and speed multiplier timers.
+* **`SlotsEngineTest` (12 tests):** 4x5 reel matrix RNG distribution, 20 payline coordinate alignment, Wild & Scatter win rules, payout multiplier calculation, and auto-spin cycle logic.
+* **`MinesEngineTest` (12 tests):** Guaranteed first-click safety, recursive flood-fill cascade reveal, broccoli flag toggle, 3-tier difficulty grid boundaries (8x8, 10x10, 12x12), and Sonar Radar area pulse.
 
 ---
 

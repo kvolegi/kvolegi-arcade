@@ -250,19 +250,20 @@ public class Slots extends Game {
         for (int i = coins.size() - 1; i >= 0; i--) { float[] p = coins.get(i); p[0] += p[2] * dt; p[1] += p[3] * dt; p[3] += 900 * dt; p[4] -= dt; if (p[4] <= 0) coins.remove(i); }
 
         // ---- layout: Centered reels flanked by left & right side panels
-        float top = 68;
-        float panelW = Math.round(Math.min(205, Math.max(155, w * 0.20f)));
+        float top = 76;
+        float panelW = Math.round(Math.min(260, Math.max(195, w * 0.24f)));
         float availW = w - 2 * panelW - 32;
         float availH = h - top - 14;
         float gap = 6;
         float cs = Math.min((availW - gap * (COLS - 1)) / COLS, (availH - gap * (ROWS - 1)) / ROWS);
         float gw = cs * COLS + gap * (COLS - 1), gh = cs * ROWS + gap * (ROWS - 1);
         float gx = panelW + 16 + (availW - gw) / 2, gy = top + (availH - gh) / 2;
-        int gold = th.accent(C.YELLOW), neon = ui.neon(0.15f);
+        int dynamicRainbow = Art.cyclingRainbow(ui.time);
+        int gold = dynamicRainbow, neon = dynamicRainbow;
 
-        ui.glowRR(g, gx - 8, gy - 8, gw + 16, gh + 16, 2.5f, gold, 1f);
+        ui.glowRR(g, gx - 8, gy - 8, gw + 16, gh + 16, 2.5f, dynamicRainbow, 1.2f);
         g.color(th.dark ? 0xFF05060A : 0xFFF6F6FB); g.rrect(gx - 8, gy - 8, gw + 16, gh + 16, 2.5f);
-        g.color(gold); g.rrectStroke(gx - 8, gy - 8, gw + 16, gh + 16, 2.5f, 2.4f);
+        g.color(dynamicRainbow); g.rrectStroke(gx - 8, gy - 8, gw + 16, gh + 16, 2.5f, 2.6f);
         boolean showLine = state == 2 && !wins.isEmpty();
         Win active = showLine ? wins.get((int) (winShowT / 0.9f) % wins.size()) : null;
         for (int c = 0; c < COLS; c++) {
@@ -295,11 +296,13 @@ public class Slots extends Game {
         }
 
         // ---- top bar
-        float s = 46;
-        if (ui.iconButton(g, Ui.BACK, 12, 12, s, color)) exit();
-        float moneyW = 60, payW = 95;
-        if (ui.chip(g, ":(", w - moneyW - 12, 14, moneyW, 42, app.showMoneyModal, C.YELLOW)) app.showMoneyModal = true;
-        if (ui.chip(g, "pay table", w - moneyW - payW - 20, 14, payW, 42, showPay, color)) showPay = !showPay;
+        float scale = Math.max(0.95f, Math.min(1.35f, h / 650f));
+        float s = Math.round(58 * scale);
+        if (ui.iconButton(g, Ui.BACK, 12, 12, s, dynamicRainbow)) exit();
+        float moneyW = Math.round(110 * scale), payW = Math.round(160 * scale);
+        float topBtnH = Math.round(56 * scale);
+        if (ui.chip(g, ":(", w - moneyW - 12, 12, moneyW, topBtnH, app.showMoneyModal, dynamicRainbow)) app.showMoneyModal = true;
+        if (ui.chip(g, "PAY TABLE", w - moneyW - payW - 20, 12, payW, topBtnH, showPay, dynamicRainbow)) showPay = !showPay;
 
         float maxInfoW = Math.max(60, (w - moneyW - payW - 32) - (12 + s + 10));
         float infoCx = (12 + s + 10) + maxInfoW / 2;
@@ -311,14 +314,14 @@ public class Slots extends Game {
 
         // ---- SIDE CONTROLS
         boolean idle = state == 0;
-        float ly = top + Math.max(4, (availH - 264) / 2);
+        float ly = top + Math.max(4, (availH - 290) / 2);
 
         // 1. LEFT PANEL (Balance, Bet, -10, +10, Set Bet)
         float lx = 12;
-        if (statBox(g, lx, ly, panelW, 52, "balance", "" + balance, th.fg)) {
+        if (statBox(g, lx, ly, panelW, 58, "balance", "" + balance, th.fg)) {
             app.showMoneyModal = true;
         }
-        if (statBox(g, lx, ly + 58, panelW, 52, "bet", "" + bet(), gold)) {
+        if (statBox(g, lx, ly + 64, panelW, 58, "bet", "" + bet(), dynamicRainbow)) {
             if (app.numberPrompt != null) {
                 app.numberPrompt.prompt("Set Bet Amount", bet(), (val) -> {
                     if (val < 10) val = 10;
@@ -331,15 +334,15 @@ public class Slots extends Game {
                 customBetInput = "" + bet();
             }
         }
-        float stepW = (panelW - 8) / 2;
-        if (ui.button(g, "-10", lx, ly + 116, stepW, 64, color) && idle) {
+        float stepW = (panelW - 10) / 2;
+        if (ui.button(g, "-10", lx, ly + 128, stepW, 72, dynamicRainbow) && idle) {
             currentBet = Math.max(10, currentBet - 10);
         }
-        if (ui.button(g, "+10", lx + stepW + 8, ly + 116, stepW, 64, color) && idle) {
+        if (ui.button(g, "+10", lx + stepW + 10, ly + 128, stepW, 72, dynamicRainbow) && idle) {
             currentBet += 10;
             if (balance >= 10 && currentBet > balance) currentBet = (int) balance;
         }
-        if (ui.button(g, "Set Bet", lx, ly + 186, panelW, 54, color) && idle) {
+        if (ui.button(g, "Set Bet", lx, ly + 208, panelW, 66, dynamicRainbow) && idle) {
             if (app.numberPrompt != null) {
                 app.numberPrompt.prompt("Set Bet Amount", bet(), (val) -> {
                     if (val < 10) val = 10;
@@ -356,16 +359,16 @@ public class Slots extends Game {
         // 2. RIGHT PANEL (Win, Spin, Auto)
         float rx = w - panelW - 12;
         String winTxt = state == 2 || lastWin > 0 ? "" + Math.round(shownWin) : "0";
-        statBox(g, rx, ly, panelW, 52, "win", winTxt, lastWin > 0 ? th.accent(C.GREEN) : th.dim);
+        statBox(g, rx, ly, panelW, 58, "win", winTxt, lastWin > 0 ? th.accent(C.GREEN) : th.dim);
 
         boolean broke = balance < bet() && freeSpins == 0;
         if (broke && idle) {
-            if (ui.button(g, ":(", rx, ly + 58, panelW, 108, C.YELLOW)) app.showMoneyModal = true;
+            if (ui.button(g, ":(", rx, ly + 64, panelW, 132, dynamicRainbow)) app.showMoneyModal = true;
         } else {
             String spinTxt = idle ? (freeSpins > 0 ? "FREE" : "SPIN") : "...";
-            if (ui.button(g, spinTxt, rx, ly + 58, panelW, 108, color) && idle) spin();
+            if (ui.button(g, spinTxt, rx, ly + 64, panelW, 132, dynamicRainbow) && idle) spin();
         }
-        if (ui.chip(g, auto ? "STOP AUTO" : "AUTO", rx, ly + 172, panelW, 52, auto, C.GREEN)) auto = !auto;
+        if (ui.chip(g, auto ? "STOP AUTO" : "AUTO", rx, ly + 204, panelW, 66, auto, auto ? C.GREEN : dynamicRainbow)) auto = !auto;
 
         // ---- banner / coins / paytable
         for (float[] p : coins) { g.color(C.a(0xFFFFD21F, C.clamp(p[4], 0, 1))); g.oval(p[0] - 6, p[1] - 6, 12, 12); g.color(C.a(0xFFB07A00, C.clamp(p[4], 0, 1))); g.ovalStroke(p[0] - 6, p[1] - 6, 12, 12, 2); }
@@ -397,29 +400,31 @@ public class Slots extends Game {
         Theme th = ui.th;
         g.color(0xDC000000); g.rect(0, 0, w, h);
 
-        float mw = Math.min(w - 20, Math.max(w * 0.90f, 680));
-        float mh = Math.min(h - 20, 580);
+        float scale = Math.max(0.85f, Math.min(1.25f, h / 650f));
+        float mw = Math.min(w - 20, Math.max(w * 0.92f, 700 * scale));
+        float mh = Math.min(h - 14, Math.max(h * 0.88f, 520 * scale));
         float mx = (w - mw) / 2;
         float my = (h - mh) / 2;
         float r = 4.0f;
+        int glowCol = Art.cyclingRainbow(ui.time);
 
-        ui.dropShadowGlow(g, mx, my, mw, mh, r, C.YELLOW, 1.4f);
+        ui.dropShadowGlow(g, mx, my, mw, mh, r, glowCol, 1.4f);
         g.color(0xFF000000);
         g.rrect(mx, my, mw, mh, r);
-        g.color(0xFFFFFFFF);
+        g.color(glowCol);
         g.rrectStroke(mx, my, mw, mh, r, 2.5f);
 
-        ui.title(g, "PAY TABLE / ВЫПЛАТЫ", mx + mw / 2, my + 34, 26, C.YELLOW);
+        ui.title(g, "PAY TABLE / ВЫПЛАТЫ", mx + mw / 2, my + 32 * scale, Math.round(26 * scale), glowCol);
 
         // 2 Columns layout: Left column = symbols 0..4 (5 items), Right column = symbols 5..8 (4 items) + scatter info
         float colW = (mw - 50) / 2;
-        float rowH = Math.max(48, (mh - 150) / 5f);
-        float fruitR = Math.max(18, rowH * 0.34f);
+        float rowH = Math.max(46f, (mh - 145 * scale) / 5f);
+        float fruitR = Math.max(18f, rowH * 0.35f);
 
         for (int i = 0; i < NSYM; i++) {
             float colX = (i < 5) ? (mx + 20) : (mx + 30 + colW);
             int rowIdx = (i < 5) ? i : (i - 5);
-            float rowY = my + 64 + rowIdx * rowH;
+            float rowY = my + 54 * scale + rowIdx * rowH;
 
             // Row item background box
             g.color(0xFF0F172A);
@@ -438,23 +443,23 @@ public class Slots extends Game {
                 t = "x" + trim(PAY[i][0]) + "  •  x" + trim(PAY[i][1]) + "  •  x" + trim(PAY[i][2]);
             }
             int txtColor = (i == SCATTER) ? C.PINK : (i == WILD ? C.YELLOW : th.fg);
-            ui.label(g, t, colX + fruitR * 2 + 18, rowY + rowH / 2, 17, true, Gfx.LEFT, txtColor, colW - fruitR * 2 - 24);
+            ui.label(g, t, colX + fruitR * 2 + 18, rowY + rowH / 2, Math.max(15, Math.round(17 * scale)), true, Gfx.LEFT, txtColor, colW - fruitR * 2 - 24);
         }
 
         // Rules notice in right column 5th slot
-        float noticeY = my + 64 + 4 * rowH;
+        float noticeY = my + 54 * scale + 4 * rowH;
         float noticeX = mx + 30 + colW;
         g.color(0xFF0F172A);
         g.rrect(noticeX, noticeY + 2, colW, rowH - 4, 3.0f);
         g.color(0xFF334155);
         g.rrectStroke(noticeX, noticeY + 2, colW, rowH - 4, 3.0f, 1.2f);
-        ui.label(g, "3, 4, 5 в линию слева направо. Free spins x2!", noticeX + colW / 2, noticeY + rowH / 2, 14, false, Gfx.CENTER, C.YELLOW, colW - 12);
+        ui.label(g, "3, 4, 5 в линию слева направо. Free spins x2!", noticeX + colW / 2, noticeY + rowH / 2, Math.max(13, Math.round(14 * scale)), false, Gfx.CENTER, C.YELLOW, colW - 12);
 
-        // Close button
-        float btnW = Math.min(240, mw - 60);
-        float btnH = 50;
-        float btnY = my + mh - btnH - 14;
-        if (ui.button(g, "Закрыть", mx + (mw - btnW) / 2, btnY, btnW, btnH, color)) {
+        // Close button (Large, easily clickable with thumb)
+        float btnW = Math.min(280, mw - 60);
+        float btnH = Math.max(50f, Math.round(54 * scale));
+        float btnY = my + mh - btnH - 10 * scale;
+        if (ui.button(g, "Закрыть / Close", mx + (mw - btnW) / 2, btnY, btnW, btnH, glowCol)) {
             showPay = false;
         }
     }
@@ -470,19 +475,20 @@ public class Slots extends Game {
         float mx = (w - mw) / 2;
         float my = (h - mh) / 2;
         float r = 4.0f;
+        int modalGlow = Art.cyclingRainbow(ui.time);
 
-        ui.dropShadowGlow(g, mx, my, mw, mh, r, C.YELLOW, 1.4f);
+        ui.dropShadowGlow(g, mx, my, mw, mh, r, modalGlow, 1.4f);
         g.color(0xFF000000);
         g.rrect(mx, my, mw, mh, r);
-        g.color(0xFFFFFFFF);
+        g.color(modalGlow);
         g.rrectStroke(mx, my, mw, mh, r, 2.5f);
 
-        ui.title(g, "ENTER BET AMOUNT", mx + mw / 2, my + 28, 20, C.YELLOW);
+        ui.title(g, "ENTER BET AMOUNT", mx + mw / 2, my + 28, 20, modalGlow);
 
         // Display box (Type your custom amount)
         g.color(0xFF0D0D12);
         g.rrect(mx + 20, my + 48, mw - 40, 50, 2.0f);
-        g.color(ui.neon(0.1f));
+        g.color(modalGlow);
         g.rrectStroke(mx + 20, my + 48, mw - 40, 50, 2.0f, 2.0f);
         String displayStr = customBetInput.isEmpty() ? "0" : customBetInput;
         ui.label(g, "$ " + displayStr, mx + mw / 2, my + 73, 28, true, Gfx.CENTER, 0xFFFFFFFF, mw - 60);

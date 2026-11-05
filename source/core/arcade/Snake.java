@@ -222,7 +222,7 @@ public class Snake extends Game {
         int rainbow = Art.cyclingRainbow(ui.time);
 
         // board: pure solid black field matching PC, subtle #141414 grid lines
-        ui.dropShadowGlow(g, ox, oy, gw, gh, 2.5f, oWalls.sel == 1 ? 0xFF00FFFF : rainbow, 1.2f);
+        ui.dropShadowGlow(g, ox, oy, gw, gh, 2.5f, rainbow, 1.2f);
         g.color(0xFF000000); // Pure black board
         g.rrect(ox, oy, gw, gh, 2.5f);
 
@@ -231,9 +231,9 @@ public class Snake extends Game {
         for (int x = 0; x <= cols; x++) g.line(ox + x * cs, oy, ox + x * cs, oy + gh, 1.0f);
         for (int y = 0; y <= rows; y++) g.line(ox, oy + y * cs, ox + gw, oy + y * cs, 1.0f);
 
-        // Neon border
-        g.color(oWalls.sel == 1 ? 0xFF00FFFF : rainbow);
-        g.rrectStroke(ox, oy, gw, gh, 2.5f, 2.2f);
+        // Neon border cycling dynamically with rainbow
+        g.color(rainbow);
+        g.rrectStroke(ox, oy, gw, gh, 2.5f, 2.5f);
 
         // obstacles (black square with neon red border & 'X')
         for (int[] wl : walls) {
@@ -263,7 +263,8 @@ public class Snake extends Game {
         int n = body.size();
         float pad = 2f;
         int[] hd = body.getFirst();
-        ui.glowCircle(g, ox + (hd[0] + 0.5f) * cs, oy + (hd[1] + 0.5f) * cs, cs * 1.4f, 0xFF4ADE80, 0.8f);
+        int headCol = Art.cyclingRainbow(ui.time + 0.25f);
+        ui.glowCircle(g, ox + (hd[0] + 0.5f) * cs, oy + (hd[1] + 0.5f) * cs, cs * 1.4f, headCol, 0.9f);
 
         java.util.Iterator<int[]> it = body.descendingIterator();
         int idx = n;
@@ -279,9 +280,9 @@ public class Snake extends Game {
             g.rrect(bx, by, sz, sz, r);
 
             if (idx == 0) {
-                // Head: bright neon green outline
-                g.color(0xFF4ADE80);
-                g.rrectStroke(bx, by, sz, sz, r, 2.5f);
+                // Head: dynamically cycling rainbow neon outline
+                g.color(headCol);
+                g.rrectStroke(bx, by, sz, sz, r, 2.8f);
             } else {
                 // Body: synchronized rainbow cycling neon outline
                 float frac = (float) idx / (float) Math.max(1, n);
@@ -319,51 +320,54 @@ public class Snake extends Game {
             g.restore();
         }
         if (waiting && !over) {
-            float boxW = Math.min(Math.round(440 * scale), w - 40);
-            float boxH = Math.round(255 * scale);
+            int glowCol = Art.cyclingRainbow(ui.time);
+            float boxW = Math.min(Math.round(480 * scale), w - 24);
+            float chipH = Math.max(48f, Math.round(52 * scale));
+            float btnH = Math.max(52f, Math.round(58 * scale));
+            float boxH = Math.round(54 * scale + 3 * (chipH + 8 * scale) + btnH + 16 * scale);
             float boxX = (w - boxW) / 2, boxY = oy + (gh - boxH) / 2;
-            ui.dropShadowGlow(g, boxX, boxY, boxW, boxH, 4f, neon, 1.4f);
+
+            ui.dropShadowGlow(g, boxX, boxY, boxW, boxH, 4f, glowCol, 1.4f);
             g.color(0xFF000000);
             g.rrect(boxX, boxY, boxW, boxH, 4f);
-            g.color(0xFFFFFFFF);
-            g.rrectStroke(boxX, boxY, boxW, boxH, 4f, 2.0f);
+            g.color(glowCol);
+            g.rrectStroke(boxX, boxY, boxW, boxH, 4f, 2.2f);
 
-            ui.label(g, "Game Setup", boxX + boxW / 2, boxY + Math.round(20 * scale), Math.round(20 * scale), true, Gfx.CENTER, th.fg, boxW);
+            ui.label(g, "Game Setup", boxX + boxW / 2, boxY + Math.round(22 * scale), Math.max(18, Math.round(22 * scale)), true, Gfx.CENTER, th.fg, boxW);
 
-            // Mode Toggle
+            // Mode Toggle (Synchronized glow)
             float chipW = (boxW - 36) / 2;
-            float chipH = Math.round(38 * scale);
-            float yChips = boxY + Math.round(42 * scale);
-            if (ui.chip(g, "25 Levels", boxX + 14, yChips, chipW, chipH, oMode.sel == 1, C.CYAN)) {
+            float yChips = boxY + Math.round(46 * scale);
+            if (ui.chip(g, "25 Levels", boxX + 14, yChips, chipW, chipH, oMode.sel == 1, glowCol)) {
                 oMode.sel = 1;
             }
-            if (ui.chip(g, "Endless", boxX + 14 + chipW + 8, yChips, chipW, chipH, oMode.sel == 0, C.CYAN)) {
+            if (ui.chip(g, "Endless", boxX + 14 + chipW + 8, yChips, chipW, chipH, oMode.sel == 0, glowCol)) {
                 oMode.sel = 0;
             }
 
-            // Difficulty Chips
+            // Difficulty Chips (Synchronized glow)
             float yDiff = yChips + chipH + Math.round(8 * scale);
             float dChipW = (boxW - 36 - 16) / 3;
             String[] diffs = {"Calm", "Normal", "Fast"};
             for (int k = 0; k < 3; k++) {
-                if (ui.chip(g, diffs[k], boxX + 14 + k * (dChipW + 8), yDiff, dChipW, chipH, oDiff.sel == k, C.GREEN)) {
+                if (ui.chip(g, diffs[k], boxX + 14 + k * (dChipW + 8), yDiff, dChipW, chipH, oDiff.sel == k, glowCol)) {
                     oDiff.sel = k;
                 }
             }
 
-            // Wall Collision Toggle
+            // Wall Collision Toggle (Synchronized glow)
             float yWalls = yDiff + chipH + Math.round(8 * scale);
-            if (ui.chip(g, "Fatal Walls", boxX + 14, yWalls, chipW, chipH, oWalls.sel == 0, C.YELLOW)) {
+            if (ui.chip(g, "Fatal Walls", boxX + 14, yWalls, chipW, chipH, oWalls.sel == 0, glowCol)) {
                 oWalls.sel = 0;
             }
-            if (ui.chip(g, "Pass-Through", boxX + 14 + chipW + 8, yWalls, chipW, chipH, oWalls.sel == 1, C.YELLOW)) {
+            if (ui.chip(g, "Pass-Through", boxX + 14 + chipW + 8, yWalls, chipW, chipH, oWalls.sel == 1, glowCol)) {
                 oWalls.sel = 1;
             }
 
-            // Start Button
+            // Start Button (Enlarged and Synchronized glow)
             float startW = boxW - 28;
-            float startY = yWalls + chipH + Math.round(10 * scale);
-            if (ui.button(g, "START GAME", boxX + 14, startY, startW, Math.round(44 * scale), C.GREEN)) {
+            float startY = yWalls + chipH + Math.round(12 * scale);
+            if (ui.button(g, "START GAME", boxX + 14, startY, startW, btnH, glowCol)) {
                 waiting = false;
             }
         }
