@@ -48,12 +48,12 @@ The suite bundles four complete arcade games with a shared Cyberpunk / Neon visu
 
 | Desktop Edition (macOS / Linux / Windows) | Mobile Edition (Android APK) |
 | :---: | :---: |
-| ![PC Arcade Hub](docs/screenshots/pc_arcade_hub.png) <br> *Main Arcade Hub (Red JavaFX Bloom)* | ![Mobile Arcade Hub](docs/screenshots/mobile_arcade_hub.png) <br> *Main Arcade Hub (Teal Native Android Glow)* |
-| ![PC Tic Tac Toe](docs/screenshots/pc_ttt_board.png) <br> *Adaptive Grid (5x5 → 7x7 → 10x10, Green Bloom)* | ![Mobile Tic Tac Toe](docs/screenshots/mobile_ttt_board.png) <br> *Active Gameplay Grid (Crimson Neon, Zero-Overlay Board)* |
-| ![PC Sigma Slots](docs/screenshots/pc_slots_game.png) <br> *20-Line Vegas Slots (JavaFX)* | ![Mobile Sigma Slots](docs/screenshots/mobile_slots_game.png) <br> *20-Line Vegas Slots (Native Android Layout)* |
+| ![PC Arcade Hub](docs/screenshots/pc_arcade_hub.png) <br> *Main Arcade Hub (Electric Cyan JavaFX Bloom)* | ![Mobile Arcade Hub](docs/screenshots/mobile_arcade_hub.png) <br> *Main Arcade Hub (Cyberpunk Purple Android Glow)* |
+| ![PC Tic Tac Toe](docs/screenshots/pc_ttt_board.png) <br> *Adaptive Grid (5x5 → 7x7 → 10x10, Emerald Bloom)* | ![Mobile Tic Tac Toe](docs/screenshots/mobile_ttt_board.png) <br> *Active Gameplay Grid (Electric Violet Neon, Zero-Overlay Board)* |
+| ![PC Sigma Slots](docs/screenshots/pc_slots_game.png) <br> *20-Line Vegas Slots (Emerald & Gold JavaFX)* | ![Mobile Sigma Slots](docs/screenshots/mobile_slots_game.png) <br> *20-Line Vegas Slots (Native Android Layout)* |
 | ![PC Pay Table](docs/screenshots/pc_slots_paytable.png) <br> *High-Res Vegas Pay Table Modal (JavaFX)* | ![Mobile Audio Settings](docs/screenshots/mobile_settings.png) <br> *Dynamic Audio & Sound Settings (Android)* |
-| ![PC Beer Snake](docs/screenshots/pc_snake_game.png) <br> *Beer Snake Game Loop (JavaFX)* | ![Mobile Beer Snake](docs/screenshots/mobile_snake_game.png) <br> *Beer Snake Level 2 (Blue Neon & Pre-Game Setup)* |
-| ![PC Minesweeper](docs/screenshots/pc_mines_game.png) <br> *Bobr Minesweeper with Sonar & Flags (JavaFX)* | ![Mobile Minesweeper](docs/screenshots/mobile_mines_game.png) <br> *Bobr Minesweeper (Amber Neon & Pre-Game Setup)* |
+| ![PC Beer Snake](docs/screenshots/pc_snake_game.png) <br> *Beer Snake Game Loop (Neon Green JavaFX)* | ![Mobile Beer Snake](docs/screenshots/mobile_snake_game.png) <br> *Beer Snake Level 2 (Ice Blue Neon & Pre-Game Setup)* |
+| ![PC Minesweeper](docs/screenshots/pc_mines_game.png) <br> *Bobr Minesweeper with Sonar & Flags (Emerald JavaFX)* | ![Mobile Minesweeper](docs/screenshots/mobile_mines_game.png) <br> *Bobr Minesweeper (Amber Neon & Pre-Game Setup)* |
 
 ---
 
