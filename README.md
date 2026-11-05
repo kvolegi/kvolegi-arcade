@@ -128,16 +128,16 @@ Rather than a fixed 3x3 grid, the board grows dynamically:
 * **Guaranteed First-Click Safety:** The mine matrix generates only after the player clicks, ensuring the starting tile is always safe and opens adjacent blank space.
 * **Sonar Pulse:** A tactical ability revealing hidden beaver positions in a $3 \times 3$ area without triggering detonation.
 
-### 5. Algorithmic Complexity & Engineering Matrix
+### 5. Algorithmic Complexity & Performance
 
-| Subsystem / Engine | Core Algorithm & Pattern | Time Complexity | Space Complexity | Invariants & Guarantees |
-| :--- | :--- | :---: | :---: | :--- |
-| **Tic Tac Toe Engine** | 4-Vector Directional Scan + Centered Expansion | $O(N)$ move check | $O(N^2)$ matrix | Dynamic grid resize ($5\times 5 \to 25\times 25$) when density $> 50\%$; centered remapping. |
-| **Threat-Evaluation AI** | Heuristic Vector Scoring (Win, Block, Fork) | $O(K \cdot N^2)$ | $O(1)$ heap churn | Evaluates vectors $[0,1], [1,0], [1,1], [1,-1]$; zero allocation during evaluation loop. |
-| **Sigma Slots Engine** | 20-Payline Matrix Evaluation + Symbol Mapper | $O(L \cdot C)$ ($20 \times 5$) | $O(1)$ allocations | 4x5 reel matrix; Wild substitutions, Scatter multipliers; deterministic RNG distribution. |
-| **Beer Snake Loop** | Queue-Based Body Traversal + Toroidal Wrap | $O(1)$ per frame | $O(\text{Length})$ | Toroidal modulo $x' = (x + W) \pmod W$; adaptive speed scaling $\max(60\text{ms}, \text{base} - 5L)$. |
-| **Bobr Minesweeper** | Deferred Lazy Placement + BFS Cascade Reveal | $O(R \cdot C)$ cascade | $O(R \cdot C)$ queue | Guaranteed first-click safety (mines seeded post-click); non-detonating $3\times 3$ Sonar pulse. |
-| **ArcadeView Render Loop** | Dedicated 60 FPS Double-Buffering RenderThread | $O(\text{Sprites})$ | $O(1)$ frame churn | Direct `SurfaceHolder.lockCanvas()`; zero GC frame pauses; Loom virtual lock-safety. |
+| Subsystem | Complexity (Time / Space) | Technical Invariant |
+| :--- | :---: | :--- |
+| **Tic Tac Toe Engine** | $O(N)$ / $O(N^2)$ | Dynamic grid expansion ($5\times 5 \to 25\times 25$) with centered remapping. |
+| **Threat-Evaluation AI** | $O(K \cdot N^2)$ / $O(1)$ | 4-vector heuristic scoring; zero heap allocation during evaluation loop. |
+| **Sigma Slots Engine** | $O(1)$ / $O(1)$ | 20-payline matrix evaluation; deterministic RNG distribution. |
+| **Beer Snake Loop** | $O(1)$ / $O(\text{Length})$ | Toroidal coordinate wrapping ($x \pmod W$); adaptive speed scaling. |
+| **Bobr Minesweeper** | $O(R \cdot C)$ / $O(R \cdot C)$ | Guaranteed first-click safety; BFS flood-fill cascade; sonar pulse. |
+| **ArcadeView Render** | 60 FPS / $O(1)$ churn | Double-buffered Canvas; zero GC frame pauses; Loom lock-safety. |
 
 ---
 
