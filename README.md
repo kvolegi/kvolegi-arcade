@@ -128,16 +128,8 @@ Rather than a fixed 3x3 grid, the board grows dynamically:
 * **Guaranteed First-Click Safety:** The mine matrix generates only after the player clicks, ensuring the starting tile is always safe and opens adjacent blank space.
 * **Sonar Pulse:** A tactical ability revealing hidden beaver positions in a $3 \times 3$ area without triggering detonation.
 
-### 5. Algorithmic Complexity & Performance
-
-| Subsystem | Complexity (Time / Space) | Technical Invariant |
-| :--- | :---: | :--- |
-| **Tic Tac Toe Engine** | $O(N)$ / $O(N^2)$ | Dynamic grid expansion ($5\times 5 \to 25\times 25$) with centered remapping. |
-| **Threat-Evaluation AI** | $O(K \cdot N^2)$ / $O(1)$ | 4-vector heuristic scoring; zero heap allocation during evaluation loop. |
-| **Sigma Slots Engine** | $O(1)$ / $O(1)$ | 20-payline matrix evaluation; deterministic RNG distribution. |
-| **Beer Snake Loop** | $O(1)$ / $O(\text{Length})$ | Toroidal coordinate wrapping ($x \pmod W$); adaptive speed scaling. |
-| **Bobr Minesweeper** | $O(R \cdot C)$ / $O(R \cdot C)$ | Guaranteed first-click safety; BFS flood-fill cascade; sonar pulse. |
-| **ArcadeView Render** | 60 FPS / $O(1)$ churn | Double-buffered Canvas; zero GC frame pauses; Loom lock-safety. |
+> [!NOTE]
+> **Deterministic Performance & Zero-GC Invariants:** All game loops, RNG sweeps, and 4-axis threat evaluation heuristics run with memory-bounded state ($O(1)$ allocation churn per frame), ensuring steady 60 FPS execution on low-spec mobile devices without JVM garbage collection pauses.
 
 ---
 
@@ -231,16 +223,13 @@ The suite includes an idiomatic **JUnit 5** test suite (75 total tests) integrat
 mvn test
 ```
 
-### Test Suite Coverage Matrix (75 Tests across 6 Suites):
-
-| Test Suite | Tests | Target Subsystem | Key Invariants Verified |
-| :--- | :---: | :--- | :--- |
-| **`AppLifecycleAndMathTest`** | 16 | Lifecycle & Math Utilities | Screen state machine transitions (`MAIN` $\leftrightarrow$ `TTT_MENU` $\leftrightarrow$ `PLAY`), volume persistence, easing (`lerp`, `clamp`, `easeOut`). |
-| **`ArcadeDomainTest`** | 11 | Domain & Headless Gfx | Headless canvas rendering pipeline (`Gfx`), vector icon paths, preferences persistence, high-DPI scaling factors. |
-| **`TicTacToeEngineTest`** | 12 | Expanding Grid & AI | Expansion triggers ($5\times 5 \to 7\times 7 \to 10\times 10$), 4-axis 5-in-a-row victory detection, heuristic minimax threat weights, turn alternation. |
-| **`SnakeEngineTest`** | 12 | Snake Physics & Food | Head/body coordinate tracking, non-occupied cell food spawning, toroidal vs solid walls, drunk speed multipliers. |
-| **`SlotsEngineTest`** | 12 | Reel Matrix & RNG | 4x5 grid symbol distribution, 20 payline alignments, Wild & Scatter payout calculations, auto-spin cycle invariant. |
-| **`MinesEngineTest`** | 12 | Mine Generation & BFS | First-click safety invariant, recursive flood-fill cascade, broccoli flag toggle, 3 difficulty tiers, Sonar Radar area pulse. |
+### Test Coverage (75 Distinct Specification Tests across 6 Suites):
+* **`AppLifecycleAndMathTest` (16 tests):** Screen transition state machine (`MAIN` $\leftrightarrow$ `TTT_MENU` $\leftrightarrow$ `PLAY`), audio volume persistence, safe string sanitization, and mathematical easing/interpolation functions (`C.clamp`, `C.easeOut`, `C.lerp`).
+* **`ArcadeDomainTest` (11 tests):** Core domain integration, headless recording graphics pipeline (`Gfx`), vector icon render loops, in-memory preferences storage, and high-DPI scaling factors.
+* **`TicTacToeEngineTest` (12 tests):** Adaptive matrix expansion ($5 \times 5 \to 7 \times 7 \to 10 \times 10$), Gomoku 5-in-a-row victory detection across all 4 vector axes, heuristic AI minimax threat weights, and turn alternation.
+* **`SnakeEngineTest` (12 tests):** Head/body coordinate tracking, food spawning in non-occupied cells, toroidal screen wrap-around vs. lethal wall collisions, beer drunk control inversion, and speed multiplier timers.
+* **`SlotsEngineTest` (12 tests):** 4x5 reel matrix RNG distribution, 20 payline coordinate alignment, Wild & Scatter win rules, payout multiplier calculation, and auto-spin cycle logic.
+* **`MinesEngineTest` (12 tests):** Guaranteed first-click safety, recursive flood-fill cascade reveal, broccoli flag toggle, 3-tier difficulty grid boundaries (8x8, 10x10, 12x12), and Sonar Radar area pulse.
 
 ---
 
